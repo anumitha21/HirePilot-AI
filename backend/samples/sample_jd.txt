@@ -1,0 +1,19 @@
+GenAI Engineer
+
+We are looking for a GenAI engineer to build LLM-powered backend workflows. The role requires Python, FastAPI, SQL, LangChain, RAG, and structured JSON output experience.
+
+What we are looking for?
+👉 Prior Internship in AI/ML or quality projects done using Python/NodeJS
+👉 Must have: Must have: Have built agentic workflows / AI pipelines.
+👉 Worked on AI voice agents, using STT/TTS.
+👉 Worked on quality retrieval RAGs or knowledge graphs.
+👉 Understands prompt engineering techniques
+👉 Comfortable with github and google colab.
+👉 Bonus: Trained models in text, image, or voice.
+👉 Bonus: Have built dashboards/workflows using Claude code / codex.
+👉 Bonus: Have worked on agentic pipelines
+👉 Bonus: Basic software engineering - postgreSQL, understanding of rate limiting, basics of security.
+
+Preferred:
+-  cloud deployment, and prompt engineering experience.
+

@@ -1,0 +1,30 @@
+[project]
+name = "hirepilot-ai"
+version = "0.1.0"
+description = "Voice-first adaptive AI interview agent."
+requires-python = ">=3.11"
+dependencies = [
+    "edge-tts>=6.1.12",
+    "faiss-cpu>=1.8.0",
+    "faster-whisper>=1.0.3",
+    "groq>=0.9.0",
+    "numpy>=1.26.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12.1",
+    "langgraph>=0.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "ruff>=0.5.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

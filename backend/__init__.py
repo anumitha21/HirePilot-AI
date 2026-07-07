@@ -1,0 +1,2 @@
+"""HirePilot AI backend package."""
+

@@ -1,0 +1,172 @@
+```txt
+ANUMITHA V
+
+Phone: +91 9150211437
+Email: anumitha5831@gmail.com
+GitHub: [GitHub]
+LinkedIn: [LinkedIn]
+Portfolio: [Portfolio]
+
+------------------------------------------------------------
+EDUCATION
+------------------------------------------------------------
+
+Sri Eshwar College of Engineering
+B.E. Computer Science and Engineering
+2024 – 2028
+CGPA: 8.02 (Up to 3rd Semester)
+
+Green Park International Sr. Sec. School (CBSE)
+HSC (2023–2024): 85.8%
+SSLC (2021–2022): 89.2%
+
+------------------------------------------------------------
+SKILLS
+------------------------------------------------------------
+
+Languages
+- Python
+- C
+- C++
+- HTML
+- CSS
+
+Frameworks
+- FastAPI
+- LangChain
+- LangGraph
+- Scikit-Learn
+- Streamlit
+- Gradio
+- n8n
+
+Libraries
+- NumPy
+- Pandas
+- Matplotlib
+- Seaborn
+
+Big Data & Distributed Systems
+- Databricks
+- Apache Spark
+- PySpark
+- Apache Airflow
+- Astronomer Cloud
+
+Databases
+- ChromaDB
+- Pinecone
+- FAISS
+- MongoDB
+- MySQL
+- PostgreSQL
+
+Tools & Platforms
+- Git
+- GitHub
+- Docker
+- Postman
+- Claude
+- Codex
+- Hugging Face
+- Ollama
+- AWS
+- Google Colab
+- Whisper
+
+Core Concepts
+- DSA
+- OOP
+- Machine Learning
+- Deep Learning
+- NLP
+- Generative AI
+- Agentic AI
+- Multi-Agent Architecture
+- Fine-Tuning (Basics)
+
+------------------------------------------------------------
+INTERNSHIP
+------------------------------------------------------------
+
+Isaii.AI – AI Developer
+2025
+
+------------------------------------------------------------
+PROJECTS
+------------------------------------------------------------
+
+Policy Compliance AI
+
+• Built an Agentic RAG-based contract compliance system that retrieves relevant policy sections and evaluates contract clauses.
+• Generated compliance verdicts, risk assessments, evidence citations, and compliant clause rewrites.
+• Implemented hybrid retrieval using semantic search, BM25, cross-encoder reranking, parent-child retrieval, and LLM-based evidence extraction.
+• Orchestrated a multi-agent LangGraph workflow with validation guardrails and automated review escalation.
+
+Tech Stack:
+Python, LangChain, LangGraph, LLaMA 3.3-70B, ChromaDB, BM25, MS MARCO MiniLM-L6-v2, Presidio
+
+------------------------------------------------------------
+
+HirePlot-AI
+
+• Built an AI-powered placement preparation application that generates personalized MCQs from aptitude and interview PDFs.
+• Tracks score history and identifies weak areas through an interactive Streamlit dashboard.
+• Used LangChain and Groq LLaMA for context-aware question generation.
+
+Tech Stack:
+Python, Streamlit, LangChain, Groq, PyPDF2
+
+------------------------------------------------------------
+
+AutoBlogX
+
+• Built an AI-powered multilingual blog generation service using FastAPI.
+• Designed a LangGraph workflow for title generation, content creation, routing, and translation.
+• Integrated LangGraph Studio and LangSmith for workflow visualization, debugging, observability, and API testing.
+
+Tech Stack:
+Python, FastAPI, LangGraph, LangChain, Groq LLM, LangSmith, Pydantic, Markdown, REST API
+
+------------------------------------------------------------
+
+AI Interview Voice Agent
+
+• Built a real-time AI voice interviewer for conducting mock interviews.
+• Implemented resume-aware question generation using FAISS-based retrieval.
+• Integrated Faster-Whisper for speech-to-text, Edge-TTS for voice synthesis, and automated answer evaluation.
+• Developed the backend using FastAPI.
+
+Tech Stack:
+Python, FastAPI, FAISS, Faster-Whisper, Edge-TTS, Sentence Transformers, Pydantic, ReportLab
+
+------------------------------------------------------------
+ACHIEVEMENTS
+------------------------------------------------------------
+
+LeetCode
+- Solved 150+ problems
+- Maximum Rating: 1488
+- Global Rank: 364,728
+
+Cyber Security Hackathon 2025
+- 1st Place
+- Organized in association with the SP Office, Namakkal & StartupTN
+
+Hack-N-Thon x Adya
+- 3rd Prize
+- Web Development & AI Automation Hackathon
+
+------------------------------------------------------------
+CERTIFICATIONS
+------------------------------------------------------------
+
+2025
+- Data Science, Machine Learning, Deep Learning & NLP Bootcamp – Krish Naik
+
+2025
+- Complete Agentic AI Bootcamp with LangGraph and LangChain – Krish Naik
+
+2025
+- Generative AI for Everyone – Andrew Ng
+```
