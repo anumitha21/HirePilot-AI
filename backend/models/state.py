@@ -2,6 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
+from backend.models.interview import DifficultyLevel, InterviewStageFlow
 from backend.models.planner import InterviewPlan
 from backend.models.understanding import UnderstandingResult
 
@@ -57,6 +58,8 @@ class InterviewState(BaseModel):
     remaining_topics: list[str] = Field(default_factory=list)
     retrieved_context: list[RetrievedContext] = Field(default_factory=list)
     current_stage: InterviewStageName = InterviewStageName.PLANNING
+    interview_stage: InterviewStageFlow = InterviewStageFlow.INTRODUCTION
+    current_difficulty: DifficultyLevel = DifficultyLevel.EASY
     final_report: dict[str, object] | None = None
 
     def remember_question(self, question: str) -> None:

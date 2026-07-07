@@ -20,15 +20,25 @@ class GroqInterviewAgent:
     def next_question(self, state: InterviewState) -> NextQuestion:
         system_prompt = self.prompt_loader.load("interviewer.md")
         schema_json = json.dumps(NextQuestion.model_json_schema(), indent=2)
-        context_texts = " ".join(c.text for c in state.retrieved_context[:3])
+        context_texts = " | ".join(c.text for c in state.retrieved_context[:3])
+        recent_history = [
+            f"{t.speaker}: {t.text}"
+            for t in state.conversation_history[-8:]
+        ]
         user_prompt = (
             f"Required JSON schema:\n{schema_json}\n\n"
+            f"=== INTERVIEW CONTEXT ===\n"
             f"Role: {state.interview_plan.role_title if state.interview_plan else 'Unknown'}\n"
-            f"Topics covered: {state.topics_covered}\n"
-            f"Weak areas: {state.weak_areas}\n"
-            f"Previous questions: {state.previous_questions[-3:]}\n"
-            f"Previous answers: {state.previous_answers[-3:]}\n"
-            f"Retrieved context: {context_texts[:600]}"
+            f"Current stage: {state.interview_stage}\n"
+            f"Current difficulty: {state.current_difficulty}\n"
+            f"Topics already covered: {state.topics_covered}\n"
+            f"Weak areas to probe: {state.weak_areas[:5]}\n"
+            f"Strong areas validated: {state.strong_areas[:5]}\n"
+            f"Remaining topics: {state.remaining_topics[:5]}\n\n"
+            f"=== RECENT CONVERSATION ===\n"
+            + "\n".join(recent_history) + "\n\n"
+            f"=== RETRIEVED CONTEXT ===\n{context_texts[:500]}\n\n"
+            f"Generate the next question. It must follow naturally from the last candidate answer."
         )
         result = self.client.complete_json(
             system_prompt=system_prompt,

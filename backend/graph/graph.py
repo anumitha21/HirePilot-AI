@@ -13,6 +13,7 @@ from langgraph.graph import END, StateGraph
 
 from backend.graph.nodes import (
     GraphState,
+    intro_node,
     make_evaluation_node,
     make_interview_node,
     make_planner_node,
@@ -41,6 +42,7 @@ def build_graph(
     builder = StateGraph(GraphState)
 
     builder.add_node("planner", make_planner_node(planner))
+    builder.add_node("intro", intro_node)
     builder.add_node("retriever", make_retriever_node(retriever_node))
     builder.add_node("interview", make_interview_node(interview_agent))
     builder.add_node("record_answer", record_answer_node)
@@ -49,12 +51,8 @@ def build_graph(
     builder.add_node("report", report_node)
 
     builder.set_entry_point("planner")
-    builder.add_edge("planner", "retriever")
-    builder.add_edge("retriever", "interview")
-    # After interview generates a question, record_answer injects the answer.
-    # In the automated/text mode the answer is already in GraphState.
-    # In voice mode the caller updates candidate_answer before resuming.
-    builder.add_edge("interview", "record_answer")
+    builder.add_edge("planner", "intro")
+    builder.add_edge("intro", "record_answer")  # candidate answers the intro greeting
     builder.add_edge("record_answer", "evaluation")
     builder.add_edge("evaluation", "memory_update")
     builder.add_conditional_edges(
@@ -62,6 +60,8 @@ def build_graph(
         should_continue,
         {"retriever": "retriever", "report": "report"},
     )
+    builder.add_edge("retriever", "interview")
+    builder.add_edge("interview", "record_answer")
     builder.add_edge("report", END)
 
     return builder.compile()

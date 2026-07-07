@@ -74,42 +74,36 @@ def main() -> None:
 # ---------------------------------------------------------------------------
 
 def run_text_mode(graph, state: InterviewState, turns: int) -> None:
-    """
-    The graph is designed as a single-turn unit:
-      planner → retriever → interview → record_answer → evaluation → memory_update → decision
-
-    We run the planner once, then loop manually so we can inject a fresh
-    candidate_answer each turn before handing control back to the graph.
-    """
     graph_state: GraphState = {"interview": state, "candidate_answer": ""}
 
-    for turn_index in range(turns):
+    # Turn 0: planner + intro greeting (candidate answers with self-introduction)
+    graph_state["candidate_answer"] = TEXT_ANSWERS[0]
+    for node_name in ["planner", "intro", "record_answer", "evaluation", "memory_update"]:
+        graph_state = graph.nodes[node_name].invoke(graph_state)
+
+    interview = graph_state["interview"]
+    print("\n--- Introduction ---")
+    print(f"Interviewer: {interview.previous_questions[-1]}")
+    print(f"Candidate:   {interview.previous_answers[-1]}")
+
+    # Subsequent turns: retriever → interview → record_answer → evaluation → memory_update
+    for turn_index in range(1, turns + 1):
         answer = TEXT_ANSWERS[min(turn_index, len(TEXT_ANSWERS) - 1)]
         graph_state["candidate_answer"] = answer
 
-        if turn_index == 0:
-            # First turn: start from planner
-            entry = "planner"
-        else:
-            # Subsequent turns: skip planner, start from retriever
-            entry = "retriever"
-
-        # Run one full turn through the graph
-        graph_state = _run_one_turn(graph, graph_state, entry)
+        for node_name in ["retriever", "interview", "record_answer", "evaluation", "memory_update"]:
+            graph_state = graph.nodes[node_name].invoke(graph_state)
 
         interview = graph_state["interview"]
-        print(f"\n--- Turn {turn_index + 1} ---")
-        if interview.previous_questions:
-            print(f"Q: {interview.previous_questions[-1]}")
-        if interview.previous_answers:
-            print(f"A: {interview.previous_answers[-1]}")
+        print(f"\n--- Turn {turn_index} ---")
+        print(f"Interviewer: {interview.previous_questions[-1]}")
+        print(f"Candidate:   {interview.previous_answers[-1]}")
         if interview.current_scores:
             print(f"Score: {interview.current_scores[-1].overall_score:.2f}")
 
         if interview.current_stage == InterviewStageName.COMPLETE:
             break
 
-    # Trigger report if not already done
     if graph_state["interview"].current_stage != InterviewStageName.COMPLETE:
         from backend.graph.nodes import report_node
         graph_state = report_node(graph_state)
@@ -118,28 +112,13 @@ def run_text_mode(graph, state: InterviewState, turns: int) -> None:
 
 
 def _run_one_turn(graph, graph_state: GraphState, entry_node: str) -> GraphState:
-    """Invoke the graph from a specific node and stop before looping back."""
-    # We use the compiled graph's individual node functions directly for
-    # fine-grained turn control, avoiding the full graph loop.
-    from backend.graph.nodes import (
-        memory_update_node,
-        record_answer_node,
-        should_continue,
-    )
-
-    interview = graph_state["interview"]
-
-    # Step through nodes manually for one turn
-    nodes_in_order = []
+    """Used by voice mode for fine-grained turn control."""
     if entry_node == "planner":
-        nodes_in_order = ["planner", "retriever", "interview", "record_answer", "evaluation", "memory_update"]
+        nodes_in_order = ["planner", "intro", "record_answer", "evaluation", "memory_update"]
     else:
         nodes_in_order = ["retriever", "interview", "record_answer", "evaluation", "memory_update"]
-
     for node_name in nodes_in_order:
-        node_fn = graph.nodes[node_name]
-        graph_state = node_fn.invoke(graph_state)
-
+        graph_state = graph.nodes[node_name].invoke(graph_state)
     return graph_state
 
 
@@ -160,24 +139,12 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
         language=settings.whisper_language,
     )
     tts = EdgeTextToSpeech(voice=settings.voice_tts_voice)
-
     graph_state: GraphState = {"interview": state, "candidate_answer": ""}
 
-    for turn_index in range(turns):
-        entry = "planner" if turn_index == 0 else "retriever"
-
-        # Generate question
-        graph_state["candidate_answer"] = ""
-        graph_state = _run_nodes_until_question(graph, graph_state, entry)
-
-        interview = graph_state["interview"]
-        question = interview.current_question or ""
-        logger.info("[voice] Q: %s", question)
-
+    def speak_and_listen(question: str) -> str:
         spoken_path = tts.synthesize_to_file(question)
         audio_io.play_audio_file(spoken_path)
         spoken_path.unlink(missing_ok=True)
-
         answer_path = audio_io.record_until_silence(
             max_duration_seconds=settings.voice_max_record_seconds,
             silence_seconds=settings.voice_silence_seconds,
@@ -185,9 +152,29 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
         )
         answer = stt.transcribe(answer_path) or "No answer provided."
         answer_path.unlink(missing_ok=True)
+        return answer
 
+    # --- Intro turn: planner + greeting ---
+    graph_state = graph.nodes["planner"].invoke(graph_state)
+    graph_state = graph.nodes["intro"].invoke(graph_state)
+    greeting = graph_state["interview"].current_question or ""
+    answer = speak_and_listen(greeting)
+    graph_state["candidate_answer"] = answer
+    for node_name in ["record_answer", "evaluation", "memory_update"]:
+        graph_state = graph.nodes[node_name].invoke(graph_state)
+
+    # --- Main interview turns ---
+    for _ in range(turns):
+        graph_state["candidate_answer"] = ""
+        for node_name in ["retriever", "interview"]:
+            graph_state = graph.nodes[node_name].invoke(graph_state)
+
+        question = graph_state["interview"].current_question or ""
+        answer = speak_and_listen(question)
         graph_state["candidate_answer"] = answer
-        graph_state = _run_nodes_after_question(graph, graph_state)
+
+        for node_name in ["record_answer", "evaluation", "memory_update"]:
+            graph_state = graph.nodes[node_name].invoke(graph_state)
 
         if graph_state["interview"].current_stage == InterviewStageName.COMPLETE:
             break
@@ -197,19 +184,6 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
         graph_state = report_node(graph_state)
 
     state.__dict__.update(graph_state["interview"].__dict__)
-
-
-def _run_nodes_until_question(graph, graph_state: GraphState, entry: str) -> GraphState:
-    nodes = ["planner", "retriever", "interview"] if entry == "planner" else ["retriever", "interview"]
-    for node_name in nodes:
-        graph_state = graph.nodes[node_name].invoke(graph_state)
-    return graph_state
-
-
-def _run_nodes_after_question(graph, graph_state: GraphState) -> GraphState:
-    for node_name in ["record_answer", "evaluation", "memory_update"]:
-        graph_state = graph.nodes[node_name].invoke(graph_state)
-    return graph_state
 
 
 # ---------------------------------------------------------------------------
@@ -283,7 +257,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample", action="store_true", help="Use bundled sample data.")
     parser.add_argument("--local", action="store_true", help="Use local deterministic agents (no Groq key needed).")
     parser.add_argument("--text", action="store_true", help="Use pre-written answers instead of microphone.")
-    parser.add_argument("--turns", type=int, default=3, help="Number of interview turns.")
+    parser.add_argument("--turns", type=int, default=12, help="Max interview turns across all stages.")
     parser.add_argument("--resume-file", default=None, help="Path to your resume .txt file.")
     parser.add_argument("--jd-file", default=None, help="Path to your job description .txt file.")
     return parser.parse_args()
