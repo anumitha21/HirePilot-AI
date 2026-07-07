@@ -2,6 +2,9 @@ from pathlib import Path
 import subprocess
 from tempfile import NamedTemporaryFile
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class AudioIOError(RuntimeError):
@@ -115,6 +118,31 @@ class LocalAudioIO:
             raise AudioIOError(f"Failed to play audio file: {audio_path}") from exc
 
     def _play_mp3(self, audio_path: Path) -> None:
+        # Try native Windows MCI play via ctypes first (instantaneous, zero overhead)
+        try:
+            import ctypes
+            winmm = ctypes.windll.winmm
+            abs_path = str(audio_path.resolve())
+            
+            # Close first in case it was left open in a previous turn
+            winmm.mciSendStringW("close mp3player", None, 0, 0)
+            
+            open_cmd = f'open "{abs_path}" type mpegvideo alias mp3player'
+            res = winmm.mciSendStringW(open_cmd, None, 0, 0)
+            if res != 0:
+                raise RuntimeError(f"MCI open failed: {res}")
+                
+            res = winmm.mciSendStringW("play mp3player wait", None, 0, 0)
+            if res != 0:
+                raise RuntimeError(f"MCI play failed: {res}")
+                
+            winmm.mciSendStringW("close mp3player", None, 0, 0)
+            return
+        except Exception as exc:
+            logger.warning("MCI player failed: %s. Falling back to PowerShell player.", exc)
+            self._play_mp3_powershell(audio_path)
+
+    def _play_mp3_powershell(self, audio_path: Path) -> None:
         player_script = (
             "Add-Type -AssemblyName presentationCore; "
             "$player = New-Object System.Windows.Media.MediaPlayer; "

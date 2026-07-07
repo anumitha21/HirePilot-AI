@@ -204,5 +204,123 @@
         "comment": "Role relevance needs more concrete examples."
       }
     ]
+  },
+  {
+    "candidate_name": "Ava Lee",
+    "overall_score": 1.32,
+    "hiring_recommendation": "No Hire",
+    "executive_summary": "Ava Lee demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Resume mentions hands-on backend and GenAI work., Candidate has relevant Python project signals.. The interview showed good communication and structured reasoning, with the main growth area being llm experience.",
+    "turns": 12,
+    "strong_areas": [
+      "Resume mentions hands-on backend and GenAI work.",
+      "Candidate has relevant Python project signals."
+    ],
+    "improvement_areas": [
+      "LLM experience",
+      "Lack of specific details about skills and qualifications",
+      "Answer could be more concise and focused"
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "Best Practices",
+        "average_score": 1.0,
+        "comment": "Best Practices needs more concrete examples."
+      },
+      {
+        "dimension": "Clear Communication",
+        "average_score": 1.5,
+        "comment": "Clear Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Communication",
+        "average_score": 1.33,
+        "comment": "Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Communication Clarity",
+        "average_score": 1.0,
+        "comment": "Communication Clarity needs more concrete examples."
+      },
+      {
+        "dimension": "Communication Skills",
+        "average_score": 0.0,
+        "comment": "Communication Skills needs more concrete examples."
+      },
+      {
+        "dimension": "Communication of Technical Information",
+        "average_score": 0.0,
+        "comment": "Communication of Technical Information needs more concrete examples."
+      },
+      {
+        "dimension": "Concrete Examples",
+        "average_score": 0.33,
+        "comment": "Concrete Examples needs more concrete examples."
+      },
+      {
+        "dimension": "Error Handling",
+        "average_score": 1.0,
+        "comment": "Error Handling needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation Detail",
+        "average_score": 0.6,
+        "comment": "Implementation Detail needs more concrete examples."
+      },
+      {
+        "dimension": "Multi-Lingual Feature",
+        "average_score": 4.0,
+        "comment": "Multi-Lingual Feature was solid and consistent."
+      },
+      {
+        "dimension": "Problem Understanding",
+        "average_score": 1.0,
+        "comment": "Problem Understanding needs more concrete examples."
+      },
+      {
+        "dimension": "Problem-Solving",
+        "average_score": 0.0,
+        "comment": "Problem-Solving needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Question",
+        "average_score": 0.0,
+        "comment": "Relevance to Question needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Role",
+        "average_score": 1.33,
+        "comment": "Relevance to Role needs more concrete examples."
+      },
+      {
+        "dimension": "Role Relevance",
+        "average_score": 1.25,
+        "comment": "Role Relevance needs more concrete examples."
+      },
+      {
+        "dimension": "Security",
+        "average_score": 2.0,
+        "comment": "Security needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Approach",
+        "average_score": 1.0,
+        "comment": "Technical Approach needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Expertise",
+        "average_score": 0.5,
+        "comment": "Technical Expertise needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Knowledge",
+        "average_score": 1.0,
+        "comment": "Technical Knowledge needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Relevance",
+        "average_score": 2.0,
+        "comment": "Technical Relevance needs more concrete examples."
+      }
+    ]
   }
 ]

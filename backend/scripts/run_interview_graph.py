@@ -74,6 +74,7 @@ def main() -> None:
 # ---------------------------------------------------------------------------
 
 def run_text_mode(graph, state: InterviewState, turns: int) -> None:
+    from backend.graph.nodes import should_continue
     graph_state: GraphState = {"interview": state, "candidate_answer": ""}
 
     # Turn 0: planner + intro greeting (candidate answers with self-introduction)
@@ -86,33 +87,46 @@ def run_text_mode(graph, state: InterviewState, turns: int) -> None:
     print(f"Interviewer: {interview.previous_questions[-1]}")
     print(f"Candidate:   {interview.previous_answers[-1]}")
 
-    # Subsequent turns: retriever → interview → record_answer → evaluation → memory_update
+    # Subsequent turns driven by Decision Node (should_continue)
     for turn_index in range(1, turns + 1):
-        answer = TEXT_ANSWERS[min(turn_index, len(TEXT_ANSWERS) - 1)]
-        graph_state["candidate_answer"] = answer
+        next_step = should_continue(graph_state)
+        
+        if next_step == "retriever":
+            # Generate next question
+            for node_name in ["retriever", "interview"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
+            
+            interview = graph_state["interview"]
+            print(f"\n--- Turn {turn_index} [{interview.interview_stage}/{interview.current_difficulty}] ---")
+            print(f"Interviewer: {interview.previous_questions[-1]}")
+            
+            # Feed candidate answer
+            answer = TEXT_ANSWERS[min(turn_index, len(TEXT_ANSWERS) - 1)]
+            graph_state["candidate_answer"] = answer
+            print(f"Candidate:   {answer}")
+            
+            for node_name in ["record_answer", "evaluation", "memory_update"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
+                
+            if interview.current_scores:
+                print(f"Score: {interview.current_scores[-1].overall_score:.2f}")
 
-        for node_name in ["retriever", "interview", "record_answer", "evaluation", "memory_update"]:
-            graph_state = graph.nodes[node_name].invoke(graph_state)
+        elif next_step == "closing":
+            graph_state = graph.nodes["closing"].invoke(graph_state)
+            interview = graph_state["interview"]
+            print(f"\n--- Closing ---")
+            print(f"Interviewer: {interview.previous_questions[-1]}")
+            
+            # Feed final candidate answer
+            answer = TEXT_ANSWERS[-1]
+            graph_state["candidate_answer"] = answer
+            print(f"Candidate:   {answer}")
+            
+            for node_name in ["record_answer", "evaluation", "memory_update"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
 
-        interview = graph_state["interview"]
-        print(f"\n--- Turn {turn_index} [{interview.interview_stage}/{interview.current_difficulty}] ---")
-        print(f"Interviewer: {interview.previous_questions[-1]}")
-        print(f"Candidate:   {interview.previous_answers[-1]}")
-        if interview.current_scores:
-            print(f"Score: {interview.current_scores[-1].overall_score:.2f}")
-
-        if interview.current_stage == InterviewStageName.COMPLETE:
+        elif next_step == "report":
             break
-
-    # closing speech
-    graph_state = graph.nodes["closing"].invoke(graph_state)
-    graph_state["candidate_answer"] = TEXT_ANSWERS[-1]
-    for node_name in ["record_answer", "evaluation", "memory_update"]:
-        graph_state = graph.nodes[node_name].invoke(graph_state)
-    interview = graph_state["interview"]
-    print(f"\n--- Closing ---")
-    print(f"Interviewer: {interview.previous_questions[-1]}")
-    print(f"Candidate:   {interview.previous_answers[-1]}")
 
     from backend.graph.nodes import report_node
     graph_state = report_node(graph_state)
@@ -139,6 +153,7 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
     from backend.voice.audio_io import LocalAudioIO
     from backend.voice.stt import WhisperSpeechToText
     from backend.voice.tts import EdgeTextToSpeech
+    from backend.graph.nodes import should_continue
 
     audio_io = LocalAudioIO(sample_rate=settings.voice_sample_rate)
     stt = WhisperSpeechToText(
@@ -151,17 +166,24 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
     graph_state: GraphState = {"interview": state, "candidate_answer": ""}
 
     def speak_and_listen(question: str) -> str:
-        spoken_path = tts.synthesize_to_file(question)
-        audio_io.play_audio_file(spoken_path)
-        spoken_path.unlink(missing_ok=True)
-        answer_path = audio_io.record_until_silence(
-            max_duration_seconds=settings.voice_max_record_seconds,
-            silence_seconds=settings.voice_silence_seconds,
-            vad_threshold=settings.voice_vad_threshold,
-        )
-        answer = stt.transcribe(answer_path) or "No answer provided."
-        answer_path.unlink(missing_ok=True)
-        return answer
+        repeat_commands = ["repeat", "repeat please", "say that again", "can you repeat", "i didnt hear"]
+        while True:
+            spoken_path = tts.synthesize_to_file(question)
+            audio_io.play_audio_file(spoken_path)
+            spoken_path.unlink(missing_ok=True)
+            answer_path = audio_io.record_until_silence(
+                max_duration_seconds=settings.voice_max_record_seconds,
+                silence_seconds=settings.voice_silence_seconds,
+                vad_threshold=settings.voice_vad_threshold,
+            )
+            answer = stt.transcribe(answer_path) or "No answer provided."
+            answer_path.unlink(missing_ok=True)
+
+            normalized = "".join(c for c in answer.lower() if c.isalnum() or c.isspace()).strip()
+            if normalized in repeat_commands:
+                logger.info("[repeat] Command detected: '%s'. Replaying question.", answer)
+                continue
+            return answer
 
     # --- Intro turn: planner + greeting ---
     graph_state = graph.nodes["planner"].invoke(graph_state)
@@ -172,30 +194,35 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
     for node_name in ["record_answer", "evaluation", "memory_update"]:
         graph_state = graph.nodes[node_name].invoke(graph_state)
 
-    # --- Main interview turns ---
+    # --- Main interview turns driven by Decision Node (should_continue) ---
     for _ in range(turns):
-        graph_state["candidate_answer"] = ""
-        for node_name in ["retriever", "interview"]:
-            graph_state = graph.nodes[node_name].invoke(graph_state)
+        next_step = should_continue(graph_state)
+        
+        if next_step == "retriever":
+            graph_state["candidate_answer"] = ""
+            for node_name in ["retriever", "interview"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
 
-        question = graph_state["interview"].current_question or ""
-        answer = speak_and_listen(question)
-        graph_state["candidate_answer"] = answer
+            question = graph_state["interview"].current_question or ""
+            answer = speak_and_listen(question)
+            graph_state["candidate_answer"] = answer
 
-        for node_name in ["record_answer", "evaluation", "memory_update"]:
-            graph_state = graph.nodes[node_name].invoke(graph_state)
+            for node_name in ["record_answer", "evaluation", "memory_update"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
 
-        if graph_state["interview"].current_stage == InterviewStageName.COMPLETE:
+        elif next_step == "closing":
+            graph_state["candidate_answer"] = ""
+            graph_state = graph.nodes["closing"].invoke(graph_state)
+
+            closing_q = graph_state["interview"].current_question or ""
+            answer = speak_and_listen(closing_q)
+            graph_state["candidate_answer"] = answer
+
+            for node_name in ["record_answer", "evaluation", "memory_update"]:
+                graph_state = graph.nodes[node_name].invoke(graph_state)
+
+        elif next_step == "report":
             break
-
-    # closing speech
-    if graph_state["interview"].current_stage != InterviewStageName.COMPLETE:
-        graph_state = graph.nodes["closing"].invoke(graph_state)
-        closing_q = graph_state["interview"].current_question or ""
-        answer = speak_and_listen(closing_q)
-        graph_state["candidate_answer"] = answer
-        for node_name in ["record_answer", "evaluation", "memory_update"]:
-            graph_state = graph.nodes[node_name].invoke(graph_state)
 
     from backend.graph.nodes import report_node
     graph_state = report_node(graph_state)

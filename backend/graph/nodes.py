@@ -71,6 +71,7 @@ def intro_node(state: GraphState) -> GraphState:
     )
     interview.remember_question(greeting)
     interview.interview_stage = "introduction"
+    interview.topics_covered.append("introduction")
     logger.info("[intro] %s", greeting)
     return {"interview": interview, "candidate_answer": state["candidate_answer"]}
 
