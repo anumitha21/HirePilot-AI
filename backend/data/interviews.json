@@ -1,0 +1,208 @@
+[
+  {
+    "candidate_name": "Demo Candidate",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Demo Candidate demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Demo Candidate",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Demo Candidate demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being llm-powered backend workflows.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 3.13,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around AI voice agents, quality retrieval RAGs or knowledge graphs. The interview showed good communication and structured reasoning, with the main growth area being llm-powered backend workflows.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anu",
+    "overall_score": 2.83,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anu demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Prior Internship in AI/ML or quality projects done using Python/NodeJS, Must have: Have built agentic workflows / AI pipelines.. The interview showed good communication and structured reasoning, with the main growth area being sql.",
+    "turns": 5
+  },
+  {
+    "candidate_name": "Anumitha V",
+    "overall_score": 2.83,
+    "hiring_recommendation": "Hold",
+    "executive_summary": "Anumitha V demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around AI voice agents, STT/TTS. The interview showed good communication and structured reasoning, with the main growth area being llm-powered backend workflows.",
+    "turns": 5,
+    "strong_areas": [
+      "AI voice agents",
+      "STT/TTS",
+      "quality retrieval RAGs or knowledge graphs"
+    ],
+    "improvement_areas": [
+      "LLM-powered backend workflows",
+      "agentic workflows / AI pipelines",
+      "cloud deployment"
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "communication_clarity",
+        "average_score": 3.7,
+        "comment": "communication clarity was solid and consistent."
+      },
+      {
+        "dimension": "depth",
+        "average_score": 2.6,
+        "comment": "depth needs more concrete examples."
+      },
+      {
+        "dimension": "role_relevance",
+        "average_score": 2.9,
+        "comment": "role relevance needs more concrete examples."
+      },
+      {
+        "dimension": "technical_accuracy",
+        "average_score": 2.12,
+        "comment": "technical accuracy needs more concrete examples."
+      }
+    ]
+  },
+  {
+    "candidate_name": "Demo",
+    "overall_score": 2.43,
+    "hiring_recommendation": "No Hire",
+    "executive_summary": "Demo demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Resume mentions hands-on backend and GenAI work., Candidate has relevant Python project signals.. The interview showed good communication and structured reasoning, with the main growth area being depth of fastapi design.",
+    "turns": 8,
+    "strong_areas": [
+      "Resume mentions hands-on backend and GenAI work.",
+      "Candidate has relevant Python project signals."
+    ],
+    "improvement_areas": [
+      "Depth of FastAPI design",
+      "LLM evaluation practices",
+      "Could include a specific failure example or trade-off."
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "communication_clarity",
+        "average_score": 2.69,
+        "comment": "communication clarity needs more concrete examples."
+      },
+      {
+        "dimension": "depth",
+        "average_score": 2.5,
+        "comment": "depth needs more concrete examples."
+      },
+      {
+        "dimension": "role_relevance",
+        "average_score": 2.5,
+        "comment": "role relevance needs more concrete examples."
+      },
+      {
+        "dimension": "technical_accuracy",
+        "average_score": 2.0,
+        "comment": "technical accuracy needs more concrete examples."
+      }
+    ]
+  },
+  {
+    "candidate_name": "Anumitha",
+    "overall_score": 0.97,
+    "hiring_recommendation": "No Hire",
+    "executive_summary": "Anumitha demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Hands-on experience with Python and backend development, Relevant project experience with GenAI and LLM. The interview showed good communication and structured reasoning, with the main growth area being depth of fastapi design knowledge.",
+    "turns": 8,
+    "strong_areas": [
+      "Hands-on experience with Python and backend development",
+      "Relevant project experience with GenAI and LLM"
+    ],
+    "improvement_areas": [
+      "Depth of FastAPI design knowledge",
+      "LLM evaluation practices",
+      "Lack of clear relevance to role"
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "Clear Communication",
+        "average_score": 1.86,
+        "comment": "Clear Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Clear communication",
+        "average_score": 0.0,
+        "comment": "Clear communication needs more concrete examples."
+      },
+      {
+        "dimension": "Concrete Examples",
+        "average_score": 0.43,
+        "comment": "Concrete Examples needs more concrete examples."
+      },
+      {
+        "dimension": "Concrete examples",
+        "average_score": 0.0,
+        "comment": "Concrete examples needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation Detail",
+        "average_score": 0.0,
+        "comment": "Implementation Detail needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation detail",
+        "average_score": 0.0,
+        "comment": "Implementation detail needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Role",
+        "average_score": 1.0,
+        "comment": "Relevance to Role needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to the role",
+        "average_score": 0.0,
+        "comment": "Relevance to the role needs more concrete examples."
+      },
+      {
+        "dimension": "Role Relevance",
+        "average_score": 0.67,
+        "comment": "Role Relevance needs more concrete examples."
+      },
+      {
+        "dimension": "Role Relevance of Skills",
+        "average_score": 1.0,
+        "comment": "Role Relevance of Skills needs more concrete examples."
+      },
+      {
+        "dimension": "Role relevance",
+        "average_score": 0.0,
+        "comment": "Role relevance needs more concrete examples."
+      }
+    ]
+  }
+]

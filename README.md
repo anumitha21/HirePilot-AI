@@ -1,96 +1,50 @@
 # HirePilot AI
 
-Voice-first adaptive AI interview agent, built one milestone at a time.
+HirePilot AI is a voice-first adaptive interview agent that turns a resume and job description into a live, recruiter-ready interview experience. The project now includes a polished web demo, a structured interview graph, report generation, and local persistence for demoing.
 
-## M0: Scaffolding + Raw Voice Loop
+## What is included
 
-This milestone sets up the backend scaffold, environment configuration, logging, and a raw local voice loop:
+- Adaptive interview flow with planner, retriever, interviewer, evaluator, and report nodes
+- Local deterministic agents for demos when no Groq key is available
+- A simple polished UI for entering resume/JD details and viewing a generated report
+- JSON-backed interview storage for recent demo runs
 
-```text
-microphone -> faster-whisper -> echo text -> Edge TTS -> speaker
-```
-
-No AI interview logic is included yet.
-
-## Setup
+## Quick start
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e .
-Copy-Item .env.example .env
+python -m pip install pytest fastapi uvicorn
 ```
 
-## Run M0
+### Run the polished demo UI
 
 ```powershell
-python -m backend.scripts.raw_voice_loop
+python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
 
-Speak after the prompt. The app records a short clip, transcribes it, then speaks the text back.
+Then open:
 
-To test speaker output only:
+```text
+http://127.0.0.1:8000/
+```
+
+### Run the backend interview graph locally
 
 ```powershell
-python -m backend.scripts.test_speaker
+python -m backend.scripts.run_interview_graph --sample --local --text
 ```
 
-The voice loop uses simple VAD-style recording: it keeps recording until you stop speaking, up to `VOICE_MAX_RECORD_SECONDS`.
-
-## M1: Resume & JD Understanding
-
-M1 extracts structured resume and job-description JSON using Pydantic schemas. Normal mode uses Groq JSON output; sample mode verifies the contract locally.
+### Run the regression tests
 
 ```powershell
-python -m backend.scripts.understand_resume_jd --sample --local
+python -m pytest backend/tests/test_report_and_persistence.py
 ```
 
-To use Groq, set `GROQ_API_KEY` in `.env` and run:
+## Demo flow
 
-```powershell
-python -m backend.scripts.understand_resume_jd --resume-file backend\samples\sample_resume.txt --jd-file backend\samples\sample_jd.txt
-```
-
-## M2: Planner Agent
-
-M2 turns structured resume/JD understanding into an interview plan. Local mode verifies the schema contract without calling Groq.
-
-```powershell
-python -m backend.scripts.plan_interview --sample --local
-```
-
-To use Groq, set `GROQ_API_KEY` in `.env` and run:
-
-```powershell
-python -m backend.scripts.plan_interview --sample
-```
-
-## M3: Shared InterviewState + Retriever
-
-M3 adds a shared interview state object and a FAISS-backed retriever for resume, job-description, and interview-guideline context.
-
-```powershell
-python -m backend.scripts.query_retriever --sample --query "FastAPI API design"
-```
-
-## M4: Interview Agent - Live Voice Loop
-
-M4 adds adaptive question generation over the existing voice pipeline. The local text mode verifies 2-3 adaptive turns without a microphone or Groq key.
-
-```powershell
-python -m backend.scripts.live_interview --sample --local --text
-```
-
-To run the live voice loop with Groq, set `GROQ_API_KEY` in `.env` and run:
-
-```powershell
-python -m backend.scripts.live_interview --sample
-```
-
-## M5: Evaluation Agent
-
-M5 scores a candidate answer across rubric dimensions and writes the result into `InterviewState.current_scores`.
-
-```powershell
-python -m backend.scripts.evaluate_answer --sample --local
-```
+1. Open the web UI.
+2. Enter a candidate name and short resume/JD summary.
+3. Click Start Demo Interview.
+4. The backend runs the graph, generates a score, and stores a recruiter-style report.

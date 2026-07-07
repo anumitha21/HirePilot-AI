@@ -13,6 +13,7 @@ from langgraph.graph import END, StateGraph
 
 from backend.graph.nodes import (
     GraphState,
+    closing_node,
     intro_node,
     make_evaluation_node,
     make_interview_node,
@@ -48,20 +49,22 @@ def build_graph(
     builder.add_node("record_answer", record_answer_node)
     builder.add_node("evaluation", make_evaluation_node(evaluation_agent))
     builder.add_node("memory_update", memory_update_node)
+    builder.add_node("closing", closing_node)
     builder.add_node("report", report_node)
 
     builder.set_entry_point("planner")
     builder.add_edge("planner", "intro")
-    builder.add_edge("intro", "record_answer")  # candidate answers the intro greeting
+    builder.add_edge("intro", "record_answer")
     builder.add_edge("record_answer", "evaluation")
     builder.add_edge("evaluation", "memory_update")
     builder.add_conditional_edges(
         "memory_update",
         should_continue,
-        {"retriever": "retriever", "report": "report"},
+        {"retriever": "retriever", "closing": "closing", "report": "report"},
     )
     builder.add_edge("retriever", "interview")
     builder.add_edge("interview", "record_answer")
+    builder.add_edge("closing", "record_answer")
     builder.add_edge("report", END)
 
     return builder.compile()

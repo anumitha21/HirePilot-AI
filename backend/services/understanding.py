@@ -21,29 +21,59 @@ def _to_str(val: Any) -> str:
 
 def _coerce_raw(data: dict) -> None:
     """Mutate the raw Groq dict in-place to match our Pydantic schema."""
-    resume = data.get("resume", {})
-    # null strings -> empty string
-    if not resume.get("summary"):
+    if not isinstance(data, dict):
+        data = {}
+
+    resume = data.get("resume")
+    if not isinstance(resume, dict):
+        resume = {}
+        data["resume"] = resume
+
+    if not isinstance(resume.get("summary"), str) or not resume.get("summary"):
         resume["summary"] = ""
-    # flatten list-of-objects fields that should be list-of-strings
+
     for field in ("certifications", "achievements"):
-        if isinstance(resume.get(field), list):
-            resume[field] = [_to_str(v) for v in resume[field]]
-    # ensure experience items have a title
+        value = resume.get(field)
+        if value is None:
+            resume[field] = []
+        elif isinstance(value, list):
+            resume[field] = [_to_str(v) for v in value]
+        else:
+            resume[field] = [_to_str(value)]
+
+    experience = resume.get("experience")
+    if experience is None:
+        resume["experience"] = []
+    elif not isinstance(experience, list):
+        resume["experience"] = [experience]
+
     for exp in resume.get("experience", []):
         if isinstance(exp, dict) and "title" not in exp:
             exp["title"] = exp.get("role") or exp.get("position") or "Unknown"
-    # ensure education items have a credential
+
+    education = resume.get("education")
+    if education is None:
+        resume["education"] = []
+    elif not isinstance(education, list):
+        resume["education"] = [education]
+
     for edu in resume.get("education", []):
         if isinstance(edu, dict) and "credential" not in edu:
             edu["credential"] = edu.get("degree") or edu.get("qualification") or "Unknown"
-    # ensure JD list fields and summary are never None
-    jd = data.get("job_description", {})
-    if not jd.get("summary"):
+
+    jd = data.get("job_description")
+    if not isinstance(jd, dict):
+        jd = {}
+        data["job_description"] = jd
+
+    if not isinstance(jd.get("summary"), str) or not jd.get("summary"):
         jd["summary"] = ""
+
     for field in ("responsibilities", "technologies", "tools", "keywords"):
         if jd.get(field) is None:
             jd[field] = []
+        elif not isinstance(jd.get(field), list):
+            jd[field] = [jd[field]]
 
 
 class UnderstandingExtractor(Protocol):
@@ -64,12 +94,17 @@ class GroqUnderstandingExtractor:
             jd_text=jd_text,
         )
 
-        raw = self.client.complete_raw_json(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-        )
-        _coerce_raw(raw)
-        return UnderstandingResult.model_validate(raw)
+        try:
+            raw = self.client.complete_raw_json(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+            )
+            if not isinstance(raw, dict):
+                raise TypeError("Groq response was not a JSON object")
+            _coerce_raw(raw)
+            return UnderstandingResult.model_validate(raw)
+        except Exception:
+            return LocalSampleUnderstandingExtractor().extract(resume_text=resume_text, jd_text=jd_text)
 
 
 class LocalSampleUnderstandingExtractor:

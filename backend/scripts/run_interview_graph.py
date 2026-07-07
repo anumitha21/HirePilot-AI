@@ -95,7 +95,7 @@ def run_text_mode(graph, state: InterviewState, turns: int) -> None:
             graph_state = graph.nodes[node_name].invoke(graph_state)
 
         interview = graph_state["interview"]
-        print(f"\n--- Turn {turn_index} ---")
+        print(f"\n--- Turn {turn_index} [{interview.interview_stage}/{interview.current_difficulty}] ---")
         print(f"Interviewer: {interview.previous_questions[-1]}")
         print(f"Candidate:   {interview.previous_answers[-1]}")
         if interview.current_scores:
@@ -104,9 +104,18 @@ def run_text_mode(graph, state: InterviewState, turns: int) -> None:
         if interview.current_stage == InterviewStageName.COMPLETE:
             break
 
-    if graph_state["interview"].current_stage != InterviewStageName.COMPLETE:
-        from backend.graph.nodes import report_node
-        graph_state = report_node(graph_state)
+    # closing speech
+    graph_state = graph.nodes["closing"].invoke(graph_state)
+    graph_state["candidate_answer"] = TEXT_ANSWERS[-1]
+    for node_name in ["record_answer", "evaluation", "memory_update"]:
+        graph_state = graph.nodes[node_name].invoke(graph_state)
+    interview = graph_state["interview"]
+    print(f"\n--- Closing ---")
+    print(f"Interviewer: {interview.previous_questions[-1]}")
+    print(f"Candidate:   {interview.previous_answers[-1]}")
+
+    from backend.graph.nodes import report_node
+    graph_state = report_node(graph_state)
 
     state.__dict__.update(graph_state["interview"].__dict__)
 
@@ -179,9 +188,17 @@ def run_voice_mode(graph, state: InterviewState, turns: int, settings) -> None:
         if graph_state["interview"].current_stage == InterviewStageName.COMPLETE:
             break
 
+    # closing speech
     if graph_state["interview"].current_stage != InterviewStageName.COMPLETE:
-        from backend.graph.nodes import report_node
-        graph_state = report_node(graph_state)
+        graph_state = graph.nodes["closing"].invoke(graph_state)
+        closing_q = graph_state["interview"].current_question or ""
+        answer = speak_and_listen(closing_q)
+        graph_state["candidate_answer"] = answer
+        for node_name in ["record_answer", "evaluation", "memory_update"]:
+            graph_state = graph.nodes[node_name].invoke(graph_state)
+
+    from backend.graph.nodes import report_node
+    graph_state = report_node(graph_state)
 
     state.__dict__.update(graph_state["interview"].__dict__)
 

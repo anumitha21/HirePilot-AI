@@ -25,20 +25,28 @@ class GroqInterviewAgent:
             f"{t.speaker}: {t.text}"
             for t in state.conversation_history[-8:]
         ]
+        projects = []
+        if state.understanding and state.understanding.resume.projects:
+            projects = [p.name for p in state.understanding.resume.projects]
+        covered_projects = [
+            t for t in state.topics_covered if any(p.lower() in t.lower() for p in projects)
+        ]
         user_prompt = (
             f"Required JSON schema:\n{schema_json}\n\n"
             f"=== INTERVIEW CONTEXT ===\n"
             f"Role: {state.interview_plan.role_title if state.interview_plan else 'Unknown'}\n"
             f"Current stage: {state.interview_stage}\n"
             f"Current difficulty: {state.current_difficulty}\n"
-            f"Topics already covered: {state.topics_covered}\n"
+            f"All projects on resume: {projects}\n"
+            f"Projects already covered: {covered_projects}\n"
+            f"Topics already covered: {state.topics_covered[-10:]}\n"
             f"Weak areas to probe: {state.weak_areas[:5]}\n"
-            f"Strong areas validated: {state.strong_areas[:5]}\n"
+            f"Strong areas validated: {state.strong_areas[:3]}\n"
             f"Remaining topics: {state.remaining_topics[:5]}\n\n"
-            f"=== RECENT CONVERSATION ===\n"
+            f"=== RECENT CONVERSATION (last 8 turns) ===\n"
             + "\n".join(recent_history) + "\n\n"
             f"=== RETRIEVED CONTEXT ===\n{context_texts[:500]}\n\n"
-            f"Generate the next question. It must follow naturally from the last candidate answer."
+            f"Generate the next question following the current stage instructions exactly."
         )
         result = self.client.complete_json(
             system_prompt=system_prompt,

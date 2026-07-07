@@ -14,9 +14,9 @@ from backend.services.interview import GroqInterviewAgent, InterviewAgent, Local
 from backend.services.planner import LocalSamplePlannerAgent
 from backend.services.retriever_node import RetrieverNode
 from backend.services.understanding import LocalSampleUnderstandingExtractor
-from backend.voice.audio_io import LocalAudioIO
-from backend.voice.stt import WhisperSpeechToText
-from backend.voice.tts import EdgeTextToSpeech
+from backend.voice.audio_io import AudioIOError, LocalAudioIO
+from backend.voice.stt import SpeechToTextError, WhisperSpeechToText
+from backend.voice.tts import EdgeTextToSpeech, TextToSpeechError
 
 logger = logging.getLogger(__name__)
 
@@ -98,22 +98,32 @@ def run_voice_interview(
         state.remember_question(question.question)
         state.topics_covered.append(question.topic)
         logger.info("Interviewer question: %s", question.question)
+        print(f"\nInterviewer: {question.question}")
 
-        spoken_question_path = text_to_speech.synthesize_to_file(question.question)
-        audio_io.play_audio_file(spoken_question_path)
-        spoken_question_path.unlink(missing_ok=True)
+        try:
+            spoken_question_path = text_to_speech.synthesize_to_file(question.question)
+            audio_io.play_audio_file(spoken_question_path)
+            spoken_question_path.unlink(missing_ok=True)
+        except (TextToSpeechError, AudioIOError) as exc:
+            logger.warning("Voice playback unavailable, using text only: %s", exc)
+            print("[Voice playback unavailable. Continuing in text mode.]")
 
-        logger.info("Recording answer until silence, up to %s seconds.", settings.voice_max_record_seconds)
-        answer_path = audio_io.record_until_silence(
-            max_duration_seconds=settings.voice_max_record_seconds,
-            silence_seconds=settings.voice_silence_seconds,
-            vad_threshold=settings.voice_vad_threshold,
-        )
-        answer = speech_to_text.transcribe(answer_path)
-        answer_path.unlink(missing_ok=True)
+        try:
+            logger.info("Recording answer until silence, up to %s seconds.", settings.voice_max_record_seconds)
+            answer_path = audio_io.record_until_silence(
+                max_duration_seconds=settings.voice_max_record_seconds,
+                silence_seconds=settings.voice_silence_seconds,
+                vad_threshold=settings.voice_vad_threshold,
+            )
+            answer = speech_to_text.transcribe(answer_path)
+            answer_path.unlink(missing_ok=True)
+        except (AudioIOError, SpeechToTextError) as exc:
+            logger.warning("Voice capture unavailable, using fallback answer: %s", exc)
+            answer = "I could not answer clearly."
 
         if not answer:
             answer = "I could not answer clearly."
+        print(f"Candidate: {answer}\n")
         state.remember_answer(answer)
 
 

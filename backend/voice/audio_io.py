@@ -81,7 +81,7 @@ class LocalAudioIO:
                     time.sleep(0.01)
 
             if not chunks:
-                raise AudioIOError("No audio was recorded.")
+                raise AudioIOError("No audio was recorded. The microphone may be unavailable or silent.")
 
             recording = np.concatenate(chunks, axis=0)
             with NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
