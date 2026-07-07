@@ -31,6 +31,19 @@ class GroqInterviewAgent:
         covered_projects = [
             t for t in state.topics_covered if any(p.lower() in t.lower() for p in projects)
         ]
+
+        latest_evaluation = ""
+        if state.current_scores:
+            last_score = state.current_scores[-1]
+            latest_evaluation = (
+                f"Latest Question Asked: {last_score.question}\n"
+                f"Candidate's Latest Answer: {last_score.answer}\n"
+                f"Latest Answer Overall Score: {last_score.overall_score}/5.0\n"
+                f"Evaluator Feedback / Critical Reasoning: {last_score.reasoning}\n"
+                f"Identified Strengths in Answer: {last_score.strengths}\n"
+                f"Identified Weaknesses in Answer: {last_score.weaknesses}\n"
+            )
+
         user_prompt = (
             f"Required JSON schema:\n{schema_json}\n\n"
             f"=== INTERVIEW CONTEXT ===\n"
@@ -43,10 +56,13 @@ class GroqInterviewAgent:
             f"Weak areas to probe: {state.weak_areas[:5]}\n"
             f"Strong areas validated: {state.strong_areas[:3]}\n"
             f"Remaining topics: {state.remaining_topics[:5]}\n\n"
+            f"=== LATEST EVALUATION FEEDBACK ===\n"
+            f"{latest_evaluation if latest_evaluation else 'No evaluations yet.'}\n\n"
             f"=== RECENT CONVERSATION (last 8 turns) ===\n"
             + "\n".join(recent_history) + "\n\n"
             f"=== RETRIEVED CONTEXT ===\n{context_texts[:500]}\n\n"
-            f"Generate the next question following the current stage instructions exactly."
+            f"Generate the next conversational question following the current stage instructions. "
+            f"Acknowledge good responses, address weaknesses or misconceptions in the latest answer, and transition naturally."
         )
         result = self.client.complete_json(
             system_prompt=system_prompt,
@@ -126,3 +142,5 @@ class LocalAdaptiveInterviewAgent:
             uses_retrieved_context=bool(state.retrieved_context),
             suggested_followups=["Ask for a practical scenario if the answer is broad."],
         )
+
+
