@@ -1,7 +1,5 @@
 # HirePilot AI — Enterprise AI Voice Recruiter Platform
 
-![HirePilot AI Platform Interface](Screenshot.png)
-
 HirePilot AI is an advanced, voice-first adaptive technical recruiter platform. By combining a structured state-machine driven by **LangGraph**, reasoning models from **Groq Llama**, vector-store retrieval via **FAISS**, and an interactive, clean **light-mode SaaS UI**, it transforms raw candidate resumes and job descriptions into an immersive, conversational live screening experience.
 
 ---
@@ -33,6 +31,8 @@ graph TD
 ```
 
 ---
+## snapshot
+![HirePilot AI Platform Interface](Screenshot.png)
 
 ## 🧠 Core System Deep Dives
 
