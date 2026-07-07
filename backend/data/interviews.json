@@ -322,5 +322,187 @@
         "comment": "Technical Relevance needs more concrete examples."
       }
     ]
+  },
+  {
+    "candidate_name": "Ava Lee",
+    "overall_score": 1.25,
+    "hiring_recommendation": "No Hire",
+    "executive_summary": "Ava Lee demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Resume mentions hands-on backend and GenAI work., Candidate has relevant Python project signals.. The interview showed good communication and structured reasoning, with the main growth area being missing skills: llm.",
+    "turns": 12,
+    "strong_areas": [
+      "Resume mentions hands-on backend and GenAI work.",
+      "Candidate has relevant Python project signals."
+    ],
+    "improvement_areas": [
+      "Missing skills: llm",
+      "Lack of relevance to role",
+      "Poor communication"
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "Clear Communication",
+        "average_score": 1.11,
+        "comment": "Clear Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Cloud Platform Implementation",
+        "average_score": 3.0,
+        "comment": "Cloud Platform Implementation was solid and consistent."
+      },
+      {
+        "dimension": "Communication",
+        "average_score": 1.67,
+        "comment": "Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Concrete Example",
+        "average_score": 0.0,
+        "comment": "Concrete Example needs more concrete examples."
+      },
+      {
+        "dimension": "Concrete Examples",
+        "average_score": 2.0,
+        "comment": "Concrete Examples needs more concrete examples."
+      },
+      {
+        "dimension": "Data Consistency",
+        "average_score": 0.83,
+        "comment": "Data Consistency needs more concrete examples."
+      },
+      {
+        "dimension": "GenAI Principles",
+        "average_score": 1.0,
+        "comment": "GenAI Principles needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation Detail",
+        "average_score": 0.6,
+        "comment": "Implementation Detail needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation Details",
+        "average_score": 0.5,
+        "comment": "Implementation Details needs more concrete examples."
+      },
+      {
+        "dimension": "Policy Override Prevention",
+        "average_score": 0.0,
+        "comment": "Policy Override Prevention needs more concrete examples."
+      },
+      {
+        "dimension": "Preventing Policy Overrides",
+        "average_score": 1.5,
+        "comment": "Preventing Policy Overrides needs more concrete examples."
+      },
+      {
+        "dimension": "Problem Analysis",
+        "average_score": 2.0,
+        "comment": "Problem Analysis needs more concrete examples."
+      },
+      {
+        "dimension": "Problem-Solving",
+        "average_score": 1.0,
+        "comment": "Problem-Solving needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to GenAI",
+        "average_score": 1.0,
+        "comment": "Relevance to GenAI needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Question",
+        "average_score": 0.0,
+        "comment": "Relevance to Question needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Role",
+        "average_score": 0.0,
+        "comment": "Relevance to Role needs more concrete examples."
+      },
+      {
+        "dimension": "Role Relevance",
+        "average_score": 1.42,
+        "comment": "Role Relevance needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Expertise",
+        "average_score": 1.0,
+        "comment": "Technical Expertise needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Knowledge",
+        "average_score": 2.0,
+        "comment": "Technical Knowledge needs more concrete examples."
+      },
+      {
+        "dimension": "Technical Skills",
+        "average_score": 3.0,
+        "comment": "Technical Skills was solid and consistent."
+      }
+    ]
+  },
+  {
+    "candidate_name": "Ava Lee",
+    "overall_score": 2.31,
+    "hiring_recommendation": "No Hire",
+    "executive_summary": "Ava Lee demonstrated strong technical grounding for the GenAI Engineer role, with clear examples around Resume mentions hands-on backend and GenAI work., Candidate has relevant Python project signals.. The interview showed good communication and structured reasoning, with the main growth area being llm experience.",
+    "turns": 7,
+    "strong_areas": [
+      "Resume mentions hands-on backend and GenAI work.",
+      "Candidate has relevant Python project signals.",
+      "Relevant experience and skills"
+    ],
+    "improvement_areas": [
+      "LLM experience",
+      "Lack of implementation detail",
+      "Unclear communication"
+    ],
+    "dimension_summaries": [
+      {
+        "dimension": "Clear Communication",
+        "average_score": 1.83,
+        "comment": "Clear Communication needs more concrete examples."
+      },
+      {
+        "dimension": "Communication",
+        "average_score": 4.0,
+        "comment": "Communication was solid and consistent."
+      },
+      {
+        "dimension": "Concrete Examples",
+        "average_score": 1.0,
+        "comment": "Concrete Examples needs more concrete examples."
+      },
+      {
+        "dimension": "Implementation Detail",
+        "average_score": 0.4,
+        "comment": "Implementation Detail needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance",
+        "average_score": 3.0,
+        "comment": "Relevance was solid and consistent."
+      },
+      {
+        "dimension": "Relevance to Question",
+        "average_score": 1.25,
+        "comment": "Relevance to Question needs more concrete examples."
+      },
+      {
+        "dimension": "Relevance to Role",
+        "average_score": 4.0,
+        "comment": "Relevance to Role was solid and consistent."
+      },
+      {
+        "dimension": "Role Relevance",
+        "average_score": 3.29,
+        "comment": "Role Relevance was solid and consistent."
+      },
+      {
+        "dimension": "Technical Expertise",
+        "average_score": 2.0,
+        "comment": "Technical Expertise needs more concrete examples."
+      }
+    ]
   }
 ]

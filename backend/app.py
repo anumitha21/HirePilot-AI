@@ -53,6 +53,7 @@ class DemoPayload(BaseModel):
     candidate_name: str | None = None
     resume_text: str | None = None
     jd_text: str | None = None
+    interview_type: str | None = None
 
 
 @app.get("/")
@@ -147,9 +148,16 @@ def run_demo(payload: DemoPayload) -> dict[str, Any]:
         intro_answer = f"My resume details: {payload.resume_text or 'Backend Engineer'}"
         followup_answer = f"To address that, here is my relevant experience: {payload.jd_text or 'FastAPI design'}"
 
+        # Run planner node and override role title if specified
         graph_state = {"interview": state, "candidate_answer": intro_answer}
-        # Run Turn 0
-        for node_name in ["planner", "intro", "record_answer", "evaluation", "memory_update"]:
+        graph_state = graph.nodes["planner"].invoke(graph_state)
+        
+        if payload.interview_type:
+            if graph_state["interview"].interview_plan:
+                graph_state["interview"].interview_plan.role_title = payload.interview_type
+
+        # Resume other Turn 0 nodes
+        for node_name in ["intro", "record_answer", "evaluation", "memory_update"]:
             graph_state = graph.nodes[node_name].invoke(graph_state)
 
         # Dynamic loop for simulation
@@ -259,6 +267,11 @@ def start_voice_interview(payload: DemoPayload) -> dict[str, Any]:
     # Run Turn 0: planner and intro
     graph_state = {"interview": state, "candidate_answer": ""}
     graph_state = make_planner_node(planner)(graph_state)
+    
+    if payload.interview_type:
+        if graph_state["interview"].interview_plan:
+            graph_state["interview"].interview_plan.role_title = payload.interview_type
+
     graph_state = intro_node(graph_state)
 
     # Speak and listen on the server

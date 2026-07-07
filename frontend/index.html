@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HirePilot AI — Premium Voice Recruiter Platform</title>
+    <title>HirePilot AI — Conversational Voice Recruiter Platform</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     
     <!-- React & Babel CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -17,6 +18,10 @@
     <!-- Tailwind CSS & Lucide Icons CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- PDF.js & Mammoth.js for client-side PDF/DOCX parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     
     <script>
       tailwind.config = {
@@ -27,19 +32,24 @@
               outfit: ['Outfit', 'sans-serif'],
             },
             colors: {
-              bg: '#03070c',
-              glass: 'rgba(10, 22, 38, 0.7)',
-              accentCyan: '#06b6d4',
-              accentPurple: '#8b5cf6',
+              bg: '#fcfcfd',
+              bgSurface: '#ffffff',
+              bgLight: '#f8fafc',
+              borderLight: '#e2e8f0',
+              textPrimary: '#0f172a',
+              textSecondary: '#475569',
+              textMuted: '#94a3b8',
+              accentBlue: '#2563eb',
+              accentBlueHover: '#1d4ed8',
               accentEmerald: '#10b981',
-              accentRose: '#f43f5e',
-              glassBorder: 'rgba(255, 255, 255, 0.08)',
+              accentRose: '#ef4444',
+              accentAmber: '#f59e0b',
             },
             boxShadow: {
-              glow: '0 0 25px rgba(6, 182, 212, 0.35)',
-              glowPurple: '0 0 25px rgba(139, 92, 246, 0.35)',
-              glowEmerald: '0 0 25px rgba(16, 185, 129, 0.35)',
-              glowRose: '0 0 25px rgba(244, 63, 94, 0.35)',
+              premium: '0 4px 30px rgba(0, 0, 0, 0.03)',
+              card: '0 1px 3px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.02)',
+              glowBlue: '0 0 35px rgba(37, 99, 235, 0.12)',
+              glowEmerald: '0 0 35px rgba(16, 185, 129, 0.12)',
             }
           }
         }
@@ -48,7 +58,8 @@
     
     <style>
       body {
-        background-color: #03070c;
+        background-color: #fcfcfd;
+        color: #0f172a;
       }
       .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
@@ -57,75 +68,49 @@
         background: transparent;
       }
       .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(15, 23, 42, 0.08);
         border-radius: 99px;
       }
-      @keyframes spinGlow {
+      @keyframes speakPulse {
+        0% { transform: scale(1); box-shadow: 0 0 30px rgba(37, 99, 235, 0.1); }
+        100% { transform: scale(1.05); box-shadow: 0 0 50px rgba(37, 99, 235, 0.25); }
+      }
+      @keyframes listenPulse {
+        0% { transform: scale(1); box-shadow: 0 0 30px rgba(16, 185, 129, 0.1); }
+        100% { transform: scale(1.05); box-shadow: 0 0 50px rgba(16, 185, 129, 0.25); }
+      }
+      @keyframes thinkBreathe {
+        0% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 30px rgba(139, 92, 246, 0.05); }
+        50% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 45px rgba(139, 92, 246, 0.2); }
+        100% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 30px rgba(139, 92, 246, 0.05); }
+      }
+      .animate-pulse-speak {
+        animation: speakPulse 1.8s infinite alternate ease-in-out;
+      }
+      .animate-pulse-listen {
+        animation: listenPulse 1.8s infinite alternate ease-in-out;
+      }
+      .animate-pulse-think {
+        animation: thinkBreathe 2.4s infinite ease-in-out;
+      }
+      @keyframes rotation {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
       .animate-spin-slow {
-        animation: spinGlow 4s linear infinite;
-      }
-      .setup-layout {
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 32px;
-      }
-      @media (max-width: 880px) {
-        .setup-layout {
-          grid-template-columns: 1fr;
-        }
-      }
-      .btn-primary {
-        background: linear-gradient(135deg, #06b6d4, #8b5cf6);
-        border: none;
-        border-radius: 14px;
-        padding: 14px 24px;
-        color: #03070c;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 800;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
-      }
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4);
-      }
-      .btn-primary:active {
-        transform: translateY(0);
-      }
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 12px 24px;
-        color: #f1f5f9;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 600;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-      .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.15);
+        animation: rotation 8s linear infinite;
       }
     </style>
   </head>
-  <body class="text-slate-100 font-sans min-h-screen bg-[radial-gradient(circle_at_50%_0%,#111d2e_0%,#03070c_70%,#010204_100%)]">
+  <body class="text-textPrimary font-sans min-h-screen select-none">
     <div id="root"></div>
 
     <script type="text/babel">
-      const { useState, useEffect, useRef } = React;
+      // Set PDFJS worker path
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-      // STAGE SEQUENCE DEFINITION
+      const { useState, useEffect } = React;
+
       const STAGES = [
         { id: 'introduction', label: 'Introduction' },
         { id: 'resume_validation', label: 'Resume Validation' },
@@ -137,30 +122,131 @@
         { id: 'closing', label: 'Closing' }
       ];
 
+      const INTERVIEW_TYPES = [
+        { id: 'Backend Developer', label: 'Backend Developer' },
+        { id: 'Frontend Developer', label: 'Frontend Developer' },
+        { id: 'Full Stack Developer', label: 'Full Stack Developer' },
+        { id: 'GenAI Engineer', label: 'GenAI Engineer' },
+        { id: 'Machine Learning Engineer', label: 'Machine Learning Engineer' },
+        { id: 'Data Scientist', label: 'Data Scientist' },
+        { id: 'Product Manager', label: 'Product Manager' },
+        { id: 'DevOps Engineer', label: 'DevOps Engineer' },
+        { id: 'UI/UX Designer', label: 'UI/UX Designer' },
+        { id: 'Custom Interview', label: 'Custom Interview' }
+      ];
+
       function App() {
         const [screen, setScreen] = useState('setup'); // 'setup', 'interview', 'report'
-        const [candidateName, setCandidateName] = useState('Ava Lee');
-        const [resumeText, setResumeText] = useState('Ava Lee is a backend software engineer with 2 years of experience. Experienced with Python, FastAPI, and Postgres database migrations. Built a small notes indexing app using standard chunking and hashing model retrieval.');
-        const [jdText, setJdText] = useState('Backend AI Application Engineer. Requirements: Python, FastAPI router structure, Pydantic schemas, and custom LLM retrieval pipelines. Exposure to system design and container deployments is highly valued.');
+        const [candidateName, setCandidateName] = useState('');
+        const [interviewType, setInterviewType] = useState('Backend Developer');
+        const [experienceLevel, setExperienceLevel] = useState('Intermediate');
         
-        // Active Interview States
+        // Raw extracted text states (passed to backend RAG endpoints)
+        const [resumeText, setResumeText] = useState('');
+        const [jdText, setJdText] = useState('');
+
+        // Uploaded File Metadata States
+        const [resumeFile, setResumeFile] = useState(null); // { name, size, status: 'success' }
+        const [jdFile, setJdFile] = useState(null); // { name, size, status: 'success' }
+        const [jdInputMode, setJdInputMode] = useState('paste'); // 'paste', 'upload'
+
+        // Evolving interview state variables
         const [currentState, setCurrentState] = useState(null);
         const [nextStep, setNextStep] = useState('retriever');
         const [turnsCount, setTurnsCount] = useState(0);
         const [avgScore, setAvgScore] = useState('0.0');
         const [difficulty, setDifficulty] = useState('easy');
         const [activeStage, setActiveStage] = useState('introduction');
-        
-        // UI Status: 'connecting', 'speaking', 'listening', 'thinking'
-        const [status, setStatus] = useState('connecting');
+        const [status, setStatus] = useState('connecting'); // 'connecting', 'speaking', 'listening', 'thinking'
+        const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
         const [report, setReport] = useState(null);
 
-        // Simulated/non-voice trigger
+        // Core Document Extractors
+        const parsePdf = async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const typedarray = new Uint8Array(arrayBuffer);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          let text = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            text += textContent.items.map(item => item.str).join(' ') + '\n';
+          }
+          return text;
+        };
+
+        const parseDocx = async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          return result.value;
+        };
+
+        const handleResumeUpload = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          setResumeFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', status: 'processing' });
+          try {
+            let extractedText = '';
+            if (file.name.endsWith('.pdf')) {
+              extractedText = await parsePdf(file);
+            } else if (file.name.endsWith('.docx')) {
+              extractedText = await parseDocx(file);
+            } else {
+              extractedText = await file.text();
+            }
+            setResumeText(extractedText);
+            setResumeFile(prev => ({ ...prev, status: 'success' }));
+          } catch (err) {
+            console.error(err);
+            alert("Error parsing file. Loading raw fallback txt.");
+            setResumeFile(null);
+          }
+        };
+
+        const handleJdUpload = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          setJdFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', status: 'processing' });
+          try {
+            let extractedText = '';
+            if (file.name.endsWith('.pdf')) {
+              extractedText = await parsePdf(file);
+            } else if (file.name.endsWith('.docx')) {
+              extractedText = await parseDocx(file);
+            } else {
+              extractedText = await file.text();
+            }
+            setJdText(extractedText);
+            setJdFile(prev => ({ ...prev, status: 'success' }));
+          } catch (err) {
+            console.error(err);
+            alert("Error parsing file.");
+            setJdFile(null);
+          }
+        };
+
+        const removeResumeFile = () => {
+          setResumeFile(null);
+          setResumeText('');
+        };
+
+        const removeJdFile = () => {
+          setJdFile(null);
+          setJdText('');
+        };
+
+        // Simulated Demo Report
         const runSimulatedDemo = async () => {
+          if (!candidateName.trim() || !resumeText.trim() || !jdText.trim()) {
+            alert("Please enter a candidate name, upload a resume file, and provide a job description to start.");
+            return;
+          }
           setScreen('report');
           setReport({
             candidate_name: candidateName,
-            role_title: "Compiling Simulated Report...",
+            role_title: `Compiling Simulated ${interviewType} Report...`,
             overall_score: 0.0,
             hiring_recommendation: "Hold",
             executive_summary: "Running planning, retrieval, and evaluation nodes. Please hold...",
@@ -173,7 +259,12 @@
             const response = await fetch('/api/run-demo', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ candidate_name: candidateName, resume_text: resumeText, jd_text: jdText })
+              body: JSON.stringify({
+                candidate_name: candidateName,
+                resume_text: resumeText,
+                jd_text: jdText,
+                interview_type: interviewType
+              })
             });
             const data = await response.json();
             setReport(data);
@@ -183,8 +274,12 @@
           }
         };
 
-        // Start local microphone voice loop
+        // Voice loop trigger
         const launchVoiceInterview = async () => {
+          if (!candidateName.trim() || !resumeText.trim() || !jdText.trim()) {
+            alert("Please enter a candidate name, upload a resume file, and provide a job description to start.");
+            return;
+          }
           setScreen('interview');
           setStatus('connecting');
 
@@ -192,7 +287,12 @@
             const response = await fetch('/api/start-voice-interview', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ candidate_name: candidateName, resume_text: resumeText, jd_text: jdText })
+              body: JSON.stringify({
+                candidate_name: candidateName,
+                resume_text: resumeText,
+                jd_text: jdText,
+                interview_type: interviewType
+              })
             });
 
             const result = await response.json();
@@ -201,17 +301,15 @@
             setTurnsCount(1);
             setActiveStage(result.state.interview_stage || 'introduction');
             
-            // Execute voice turn loop
             runVoiceInterviewLoop(result.state, result.next_step, 1);
 
           } catch (e) {
             console.error(e);
-            alert("Local mic/audio connection failed. Ensure server has mic permissions.");
+            alert("Hardware microphone setup failed. Please make sure the local server is running and has mic permissions.");
             setScreen('setup');
           }
         };
 
-        // Loop voice interview turns
         const runVoiceInterviewLoop = async (stateVal, nextStepVal, currentTurns) => {
           if (nextStepVal === 'report') {
             setStatus('thinking');
@@ -257,13 +355,13 @@
             }
             setActiveStage(updatedState.interview_stage || 'introduction');
 
-            // Trigger next loop iteration
+            // Recursive callback trigger
             runVoiceInterviewLoop(updatedState, result.next_step, nextTurns);
 
           } catch (error) {
             console.error("Voice turn error:", error);
-            alert("Hardware voice loop timeout. Restarting turn loop...");
-            setTimeout(() => runVoiceInterviewLoop(stateVal, nextStepVal, currentTurns), 2000);
+            alert("Connection timeout. Reconnecting turns...");
+            setTimeout(() => runVoiceInterviewLoop(stateVal, nextStepVal, currentTurns), 2500);
           }
         };
 
@@ -277,111 +375,199 @@
           setReport(null);
         };
 
+        // Determine dynamic background colors based on active stages
+        const getAvatarStatusClasses = () => {
+          if (status === 'speaking') return 'animate-pulse-speak border-accentBlue bg-accentBlue/5';
+          if (status === 'listening') return 'animate-pulse-listen border-accentEmerald bg-accentEmerald/5';
+          if (status === 'thinking') return 'animate-pulse-think border-slate-300 bg-slate-50';
+          return 'border-slate-200 bg-slate-50';
+        };
+
         return (
-          <div className="flex flex-col min-h-screen">
-            {/* SETUP SCREEN */}
+          <div className="flex flex-col min-h-screen text-textPrimary bg-bg font-sans">
+            
+            {/* Header branding */}
+            <header className="border-b border-borderLight bg-white py-4 px-8 flex justify-between items-center shadow-premium">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-accentBlue flex items-center justify-center text-white font-outfit font-black text-sm">HP</div>
+                <span className="font-outfit font-bold tracking-tight text-textPrimary text-base">HirePilot <span className="text-accentBlue">AI</span></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-accentEmerald animate-pulse"></span>
+                <span className="text-xs font-semibold text-textSecondary uppercase tracking-widest">Active Server</span>
+              </div>
+            </header>
+
+            {/* SCREEN 1: PROFESSIONAL SETUP SCREEN */}
             {screen === 'setup' && (
-              <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12 flex flex-col justify-center">
-                <div className="glass-card bg-glass border border-glassBorder rounded-[28px] p-8 md:p-12 shadow-shadow setup-layout">
-                  <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-accentCyan uppercase tracking-widest mb-6">
-                      <span className="w-2 h-2 rounded-full bg-accentCyan animate-pulse"></span>
-                      Voice Agent Setup
-                    </div>
-                    <h1 className="font-outfit text-4xl md:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-                      Voice-First Adaptive <br /><span className="bg-gradient-to-r from-accentCyan to-accentPurple bg-clip-text text-fill-color-transparent text-transparent">AI Recruiting Agent</span>
-                    </h1>
-                    <p className="text-slate-400 text-lg leading-relaxed mb-8">
-                      Experience automated, fully conversational candidate screening driven by LangGraph and the Groq Llama-3 API. Speak naturally—the AI tracks context, adjusts levels, and designs reports.
-                    </p>
-
-                    <div className="flex flex-col gap-5 mb-8">
-                      <div className="flex gap-4 items-start">
-                        <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 text-accentPurple flex items-center justify-center font-bold text-xs flex-shrink-0">1</div>
-                        <p className="text-sm text-slate-300"><strong>Hands-free VAD:</strong> Zero clicks needed. The system automatically detects when you speak and finish.</p>
+              <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-12 flex flex-col justify-center">
+                <div className="bg-bgSurface border border-borderLight rounded-[24px] p-8 md:p-12 shadow-premium grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-10">
+                  
+                  {/* Left branding */}
+                  <div className="flex flex-col justify-between">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accentBlue/10 text-[10px] font-bold text-accentBlue uppercase tracking-wider mb-6">
+                        <i className="lucide-volume-2"></i> Voice-First Platform
                       </div>
-                      <div className="flex gap-4 items-start">
-                        <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 text-accentPurple flex items-center justify-center font-bold text-xs flex-shrink-0">2</div>
-                        <p className="text-sm text-slate-300"><strong>Speech STT & TTS:</strong> Outputs spoken audio via Edge TTS and transcribes microphone input via Whisper.</p>
-                      </div>
-                      <div className="flex gap-4 items-start">
-                        <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 text-accentPurple flex items-center justify-center font-bold text-xs flex-shrink-0">3</div>
-                        <p className="text-sm text-slate-300"><strong>Dynamic Depth Reasoning:</strong> Adjusts question levels dynamically from easy up to architecture depending on score.</p>
-                      </div>
+                      <h1 className="font-outfit text-3xl md:text-4xl font-extrabold tracking-tight text-textPrimary mb-4">
+                        Conversational <br /><span className="text-accentBlue">Voice Recruitment</span>
+                      </h1>
+                      <p className="text-textSecondary text-sm leading-relaxed mb-8 max-w-sm">
+                        Conduct natural, conversational technical interviews at scale. Assess candidate knowledge, design thinking, and communication skills in real time.
+                      </p>
                     </div>
 
-                    <div className="flex gap-4 flex-wrap">
-                      <button className="btn-primary" onClick={launchVoiceInterview}>
-                        <svg viewBox="0 0 24 24" width="20" height="20" className="fill-current">
-                          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
+                    <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={launchVoiceInterview}
+                        className="bg-accentBlue hover:bg-accentBlueHover text-white font-outfit font-bold rounded-xl px-6 py-3.5 hover:translate-y-[-1px] transition shadow-md hover:shadow-lg text-sm text-center"
+                      >
                         Start Voice Interview
                       </button>
-                      <button className="btn-secondary text-slate-200" onClick={runSimulatedDemo}>
+                      <button 
+                        onClick={runSimulatedDemo}
+                        className="bg-slate-50 border border-borderLight text-textSecondary font-outfit font-semibold rounded-xl px-6 py-3.5 hover:bg-slate-100 transition text-sm text-center"
+                      >
                         Simulate Demo Report
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Candidate Name</label>
+                  {/* Right configuration inputs */}
+                  <div className="flex flex-col gap-5 border-l border-borderLight/60 pl-0 md:pl-10">
+                    <h3 className="font-outfit text-lg font-bold text-textPrimary">Interview Configuration</h3>
+                    
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-textSecondary uppercase tracking-wider">Candidate Name</label>
                       <input 
                         type="text" 
                         value={candidateName} 
                         onChange={(e) => setCandidateName(e.target.value)} 
-                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accentCyan focus:bg-white/10 transition"
+                        className="bg-bgLight border border-borderLight rounded-xl px-4 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-accentBlue transition"
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Resume Details / Text</label>
-                      <textarea 
-                        value={resumeText} 
-                        onChange={(e) => setResumeText(e.target.value)} 
-                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accentCyan focus:bg-white/10 h-32 transition resize-none custom-scrollbar"
-                      />
+                    {/* Interview Type Selector */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-textSecondary uppercase tracking-wider">Interview Type / Target Role</label>
+                      <select 
+                        value={interviewType}
+                        onChange={(e) => setInterviewType(e.target.value)}
+                        className="bg-bgLight border border-borderLight rounded-xl px-4 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-accentBlue transition"
+                      >
+                        {INTERVIEW_TYPES.map((t) => (
+                          <option key={t.id} value={t.id}>{t.label}</option>
+                        ))}
+                      </select>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Job Description Text</label>
-                      <textarea 
-                        value={jdText} 
-                        onChange={(e) => setJdText(e.target.value)} 
-                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accentCyan focus:bg-white/10 h-32 transition resize-none custom-scrollbar"
-                      />
+                    {/* Drag-and-Drop Resume Area */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-textSecondary uppercase tracking-wider">Resume Upload (PDF, DOCX, TXT)</label>
+                      {!resumeFile ? (
+                        <div className="relative border-2 border-dashed border-borderLight hover:border-accentBlue transition rounded-xl p-6 text-center cursor-pointer bg-bgLight">
+                          <input 
+                            type="file" 
+                            accept=".pdf,.docx,.txt"
+                            onChange={handleResumeUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                          />
+                          <div className="flex flex-col items-center gap-1.5 text-textSecondary">
+                            <span className="text-xs font-semibold">Click or drag resume file to upload</span>
+                            <span className="text-[10px] text-textMuted">PDF, DOCX, or TXT up to 10MB</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border border-borderLight rounded-xl p-4 flex items-center justify-between bg-white shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-accentEmerald">
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold text-textPrimary truncate max-w-[160px]">{resumeFile.name}</div>
+                              <div className="text-[9px] text-textMuted">{resumeFile.size} • {resumeFile.status === 'processing' ? 'Extracting RAG Text...' : 'Parsed Successfully'}</div>
+                            </div>
+                          </div>
+                          <button onClick={removeResumeFile} className="text-textMuted hover:text-accentRose transition p-1">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Job Description (Upload or Paste) Selector */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-textSecondary uppercase tracking-wider">Job Description</label>
+                        <div className="flex gap-2 text-[10px] font-bold">
+                          <button onClick={() => setJdInputMode('paste')} className={`pb-0.5 border-b-2 ${jdInputMode === 'paste' ? 'border-accentBlue text-accentBlue' : 'border-transparent text-textMuted'}`}>Paste</button>
+                          <button onClick={() => setJdInputMode('upload')} className={`pb-0.5 border-b-2 ${jdInputMode === 'upload' ? 'border-accentBlue text-accentBlue' : 'border-transparent text-textMuted'}`}>Upload</button>
+                        </div>
+                      </div>
+
+                      {jdInputMode === 'paste' ? (
+                        <textarea 
+                          value={jdText} 
+                          onChange={(e) => setJdText(e.target.value)} 
+                          className="bg-bgLight border border-borderLight rounded-xl px-4 py-2 text-xs text-textSecondary focus:outline-none focus:border-accentBlue h-20 resize-none custom-scrollbar transition"
+                        />
+                      ) : (
+                        <div>
+                          {!jdFile ? (
+                            <div className="relative border-2 border-dashed border-borderLight hover:border-accentBlue transition rounded-xl p-5 text-center cursor-pointer bg-bgLight">
+                              <input 
+                                type="file" 
+                                accept=".pdf,.docx,.txt"
+                                onChange={handleJdUpload}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                              />
+                              <div className="flex flex-col items-center gap-1 text-textSecondary">
+                                <span className="text-xs font-semibold">Click or drag JD file to upload</span>
+                                <span className="text-[10px] text-textMuted">PDF, DOCX, or TXT</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="border border-borderLight rounded-xl p-4 flex items-center justify-between bg-white shadow-sm">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-accentEmerald">
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <div>
+                                  <div className="text-xs font-bold text-textPrimary truncate max-w-[160px]">{jdFile.name}</div>
+                                  <div className="text-[9px] text-textMuted">{jdFile.size} • {jdFile.status === 'processing' ? 'Extracting RAG Text...' : 'Parsed Successfully'}</div>
+                                </div>
+                              </div>
+                              <button onClick={removeJdFile} className="text-textMuted hover:text-accentRose transition p-1">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                   </div>
+
                 </div>
               </main>
             )}
 
-            {/* VOICE INTERVIEW SCREEN */}
+            {/* SCREEN 2: IMMERSIVE LIGHT-THEMED INTERVIEW SCREEN */}
             {screen === 'interview' && (
-              <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 grid grid-columns-1 md:grid-cols-[280px_1fr] gap-6">
-                {/* Sidebar Status Trackers */}
-                <div className="flex flex-col gap-6">
-                  <div className="glass-card bg-glass border border-glassBorder rounded-2xl p-6 shadow-shadow flex flex-col gap-5">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-white/5 border border-white/5 rounded-xl p-3 text-center">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Turns</div>
-                        <div className="font-outfit text-xl font-bold text-accentCyan">{turnsCount}</div>
-                      </div>
-                      <div className="bg-white/5 border border-white/5 rounded-xl p-3 text-center">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg Score</div>
-                        <div className="font-outfit text-xl font-bold text-accentCyan">{avgScore}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/5 border border-white/5 rounded-xl p-3.5 text-center">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Difficulty Level</div>
-                      <div className="font-outfit text-lg font-bold text-accentPurple capitalize">{difficulty}</div>
+              <main className="flex-1 w-full grid grid-cols-1 md:grid-cols-[250px_1fr_300px] border-t border-borderLight transition-all duration-300">
+                
+                {/* 1. LEFT SIDEBAR */}
+                <aside className="border-r border-borderLight bg-white px-6 py-8 flex flex-col justify-between">
+                  <div className="flex flex-col gap-8">
+                    <div>
+                      <div className="text-[10px] font-bold text-textMuted uppercase tracking-wider mb-2">Candidate</div>
+                      <div className="font-outfit text-base font-bold text-textPrimary tracking-tight">{candidateName}</div>
+                      <div className="text-[10px] text-accentBlue font-medium mt-0.5">{interviewType}</div>
                     </div>
 
-                    <div className="border-t border-glassBorder pt-4">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Interview Stages</div>
-                      <div className="flex flex-col gap-2">
+                    <div>
+                      <div className="text-[10px] font-bold text-textMuted uppercase tracking-wider mb-3">Interview Progress</div>
+                      <div className="flex flex-col gap-2.5">
                         {STAGES.map((s) => {
                           const isActive = activeStage === s.id;
                           const activeIndex = STAGES.findIndex(item => item.id === activeStage);
@@ -391,20 +577,12 @@
                           return (
                             <div 
                               key={s.id} 
-                              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold border transition ${
-                                isActive 
-                                  ? 'bg-cyan-500/10 border-cyan-500/25 text-slate-100' 
-                                  : isCompleted 
-                                    ? 'border-transparent text-accentEmerald' 
-                                    : 'border-transparent text-slate-500'
+                              className={`flex items-center gap-3 text-xs font-semibold transition ${
+                                isActive ? 'text-textPrimary' : isCompleted ? 'text-accentEmerald' : 'text-slate-300'
                               }`}
                             >
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                                isActive 
-                                  ? 'bg-accentCyan shadow-[0_0_8px_#06b6d4]' 
-                                  : isCompleted 
-                                    ? 'bg-accentEmerald' 
-                                    : 'bg-slate-700'
+                              <span className={`w-2 h-2 rounded-full ${
+                                isActive ? 'bg-accentBlue shadow-[0_0_8px_#2563eb]' : isCompleted ? 'bg-accentEmerald' : 'bg-slate-200'
                               }`}></span>
                               {s.label}
                             </div>
@@ -413,93 +591,178 @@
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Voice Arena Screen */}
-                <div className="glass-card bg-glass border border-glassBorder rounded-2xl p-8 shadow-shadow flex flex-col items-center justify-center gap-10 min-h-[550px] relative">
+                  <div className="bg-bgLight border border-borderLight rounded-xl p-4">
+                    <div className="text-[10px] font-bold text-textMuted uppercase tracking-wider mb-1">Session Status</div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-accentEmerald">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accentEmerald animate-ping"></span>
+                      Voice Stream Active
+                    </div>
+                  </div>
+                </aside>
+
+                {/* 2. CENTER PANEL (70% Visual Focus) */}
+                <section className="flex flex-col justify-center items-center px-8 md:px-16 py-12 flex-1 max-w-4xl mx-auto w-full relative">
                   
-                  <div className="relative flex items-center justify-center">
-                    {/* Glowing Core Visualizer */}
-                    <div className={`w-44 h-44 rounded-full bg-gradient-to-b from-purple-500/20 to-glass border-3 border-accentCyan flex items-center justify-center transition-all duration-700 z-10 ${
-                      status === 'speaking' 
-                        ? 'border-accentPurple shadow-glowPurple scale-105' 
-                        : status === 'listening' 
-                          ? 'border-accentEmerald shadow-glowEmerald' 
-                          : status === 'thinking' 
-                            ? 'border-accentRose shadow-glowRose animate-spin-slow' 
-                            : 'shadow-glow'
-                    }`}>
-                      <svg viewBox="0 0 24 24" width="48" height="48" className="fill-current text-slate-200 opacity-90">
+                  {/* AI Status Badge */}
+                  <div className="absolute top-8 px-4.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold tracking-widest uppercase text-textSecondary">
+                    {status === 'connecting' && 'Starting Session'}
+                    {status === 'speaking' && 'Interviewer Speaking'}
+                    {status === 'listening' && 'Recording Answer'}
+                    {status === 'thinking' && 'Analyzing Response'}
+                  </div>
+
+                  {/* FoloUp-Inspired AI Circular Avatar */}
+                  <div className="mb-12 relative flex items-center justify-center">
+                    {status === 'thinking' && (
+                      <div className="absolute w-56 h-56 rounded-full border border-dashed border-accentBlue/25 animate-spin-slow"></div>
+                    )}
+                    <div className={`w-48 h-48 rounded-full border-2 flex items-center justify-center transition-all duration-700 z-10 ${getAvatarStatusClasses()}`}>
+                      <svg viewBox="0 0 24 24" width="40" height="40" className={`fill-current text-textPrimary opacity-90 transition-transform duration-500 ${status === 'speaking' ? 'scale-110 text-accentBlue' : status === 'listening' ? 'text-accentEmerald' : ''}`}>
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
                       </svg>
                     </div>
+                  </div>
+
+                  {/* Active Question Panel */}
+                  <div className="text-center max-w-[85%] flex flex-col items-center gap-6">
+                    <p className="font-outfit text-xl md:text-2xl font-bold text-textPrimary leading-relaxed min-h-[50px]">
+                      {currentState?.current_question || "Alex is starting the interview..."}
+                    </p>
                     
-                    {/* Status Badge */}
-                    <div className={`absolute -bottom-4 px-4 py-1.5 rounded-full bg-bg border border-glassBorder text-xs font-bold uppercase tracking-wider z-20 shadow-shadow ${
-                      status === 'speaking' 
-                        ? 'text-accentPurple border-purple-500/30' 
-                        : status === 'listening' 
-                          ? 'text-accentEmerald border-emerald-500/30' 
-                          : status === 'thinking' 
-                            ? 'text-accentRose border-rose-500/30' 
-                            : 'text-accentCyan border-cyan-500/30'
-                    }`}>
-                      {status === 'connecting' ? 'Connecting' : status}
+                    {/* Live Transcription Box */}
+                    {status === 'listening' && (
+                      <div className="bg-bgLight border border-borderLight rounded-2xl p-5 w-full text-left mt-4 shadow-premium animate-pulse">
+                        <div className="text-[9px] font-bold text-accentEmerald uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 bg-accentEmerald rounded-full"></span>
+                          Streaming Microphone
+                        </div>
+                        <p className="text-xs text-textSecondary italic">Speak naturally. VAD will automatically stop and submit your answer when you pause...</p>
+                      </div>
+                    )}
+
+                    {status === 'thinking' && (
+                      <div className="flex items-center gap-2 text-xs font-bold text-textMuted uppercase tracking-widest mt-4">
+                        <span className="w-1.5 h-1.5 bg-accentBlue rounded-full animate-ping"></span>
+                        Processing dynamic logic...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Live Waveform Indicator */}
+                  <div className="mt-12 flex items-center gap-2 h-8">
+                    <div className={`w-1 rounded-full transition-all duration-300 bg-slate-200 ${status === 'listening' ? 'h-8 bg-accentEmerald animate-pulse' : status === 'speaking' ? 'h-5 bg-accentBlue animate-pulse' : 'h-1'}`}></div>
+                    <div className={`w-1 rounded-full transition-all duration-300 delay-75 bg-slate-200 ${status === 'listening' ? 'h-5 bg-accentEmerald animate-pulse' : status === 'speaking' ? 'h-7 bg-accentBlue animate-pulse' : 'h-1'}`}></div>
+                    <div className={`w-1 rounded-full transition-all duration-300 delay-150 bg-slate-200 ${status === 'listening' ? 'h-9 bg-accentEmerald animate-pulse' : status === 'speaking' ? 'h-4 bg-accentBlue animate-pulse' : 'h-1'}`}></div>
+                    <div className={`w-1 rounded-full transition-all duration-300 delay-100 bg-slate-200 ${status === 'listening' ? 'h-6 bg-accentEmerald animate-pulse' : status === 'speaking' ? 'h-8 bg-accentBlue animate-pulse' : 'h-1'}`}></div>
+                    <div className={`w-1 rounded-full transition-all duration-300 delay-200 bg-slate-200 ${status === 'listening' ? 'h-7 bg-accentEmerald animate-pulse' : status === 'speaking' ? 'h-5 bg-accentBlue animate-pulse' : 'h-1'}`}></div>
+                  </div>
+                </section>
+
+                {/* 3. RIGHT SIDEBAR (Collapsible Context Panel) */}
+                <aside className={`border-l border-borderLight bg-white py-8 flex flex-col transition-all duration-300 ${rightSidebarOpen ? 'w-[300px] px-6' : 'w-0 overflow-hidden px-0 border-l-0'}`}>
+                  <div className="flex flex-col gap-6 h-full justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">Recruiter Telemetry</span>
+                        <button onClick={() => setRightSidebarOpen(false)} className="text-textMuted hover:text-textPrimary">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-4">
+                        <div className="bg-bgLight border border-borderLight rounded-xl p-4">
+                          <div className="text-[9px] font-bold text-textMuted uppercase tracking-widest mb-1.5">Evolving Metrics</div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textSecondary">Turn count</span>
+                              <strong className="text-textPrimary">{turnsCount}</strong>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textSecondary">Rubric average</span>
+                              <strong className="text-accentBlue">{avgScore} / 5.0</strong>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textSecondary">Active Level</span>
+                              <strong className="text-textPrimary capitalize">{difficulty}</strong>
+                            </div>
+                          </div>
+                        </div>
+
+                        {currentState?.strong_areas && currentState.strong_areas.length > 0 && (
+                          <div className="bg-bgLight border border-borderLight rounded-xl p-4">
+                            <div className="text-[9px] font-bold text-textMuted uppercase tracking-widest mb-2">Strengths Detected</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {currentState.strong_areas.slice(0, 3).map((s, idx) => (
+                                <span key={idx} className="bg-emerald-500/5 border border-emerald-500/10 text-accentEmerald text-[10px] font-bold px-2 py-1 rounded">
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {currentState?.weak_areas && currentState.weak_areas.length > 0 && (
+                          <div className="bg-bgLight border border-borderLight rounded-xl p-4">
+                            <div className="text-[9px] font-bold text-textMuted uppercase tracking-widest mb-2">Areas of Concern</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {currentState.weak_areas.slice(0, 3).map((w, idx) => (
+                                <span key={idx} className="bg-rose-500/5 border border-rose-500/10 text-accentRose text-[10px] font-bold px-2 py-1 rounded">
+                                  {w}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] text-textMuted leading-relaxed">
+                      Questions are generated dynamically based on candidate credentials, target role alignment, and semantic retrieval mappings.
                     </div>
                   </div>
+                </aside>
 
-                  {/* Status Helper Text */}
-                  <div className="text-center max-w-[80%]">
-                    <p className="font-outfit text-lg font-medium text-slate-300 mb-2 leading-relaxed">
-                      {status === 'connecting' && 'Starting server voice session with Alex...'}
-                      {status === 'speaking' && 'Listen to the interviewer\'s question...'}
-                      {status === 'listening' && 'Speak into your microphone. Alex is listening...'}
-                      {status === 'thinking' && 'Analyzing response quality and generating next steps...'}
-                    </p>
-                    <span className="text-xs text-slate-500 uppercase tracking-widest font-mono">
-                      {status === 'listening' ? 'Voice VAD active — pause to submit' : 'Mic on always'}
-                    </span>
-                  </div>
-
-                  {/* Dynamic wave animation */}
-                  <div className="flex items-center gap-1.5 h-10">
-                    <div className={`w-1 bg-accentCyan rounded-full transition-all duration-300 ${status === 'speaking' ? 'h-8 animate-pulse bg-accentPurple' : 'h-1.5'}`}></div>
-                    <div className={`w-1 bg-accentCyan rounded-full transition-all duration-300 delay-75 ${status === 'speaking' ? 'h-6 animate-pulse bg-accentPurple' : 'h-1.5'}`}></div>
-                    <div className={`w-1 bg-accentCyan rounded-full transition-all duration-300 delay-150 ${status === 'speaking' ? 'h-9 animate-pulse bg-accentPurple' : 'h-1.5'}`}></div>
-                    <div className={`w-1 bg-accentCyan rounded-full transition-all duration-300 delay-100 ${status === 'speaking' ? 'h-7 animate-pulse bg-accentPurple' : 'h-1.5'}`}></div>
-                    <div className={`w-1 bg-accentCyan rounded-full transition-all duration-300 delay-200 ${status === 'speaking' ? 'h-5 animate-pulse bg-accentPurple' : 'h-1.5'}`}></div>
-                  </div>
-                </div>
+                {/* Minimized Sidebar Toggle Button */}
+                {!rightSidebarOpen && (
+                  <button 
+                    onClick={() => setRightSidebarOpen(true)}
+                    className="absolute top-8 right-8 bg-white border border-borderLight w-8 h-8 rounded-full flex items-center justify-center text-textMuted hover:text-textPrimary z-30"
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                  </button>
+                )}
               </main>
             )}
 
-            {/* COMPLETED REPORT SCREEN */}
+            {/* SCREEN 3: COMPLETED SaaS RECRUITER REPORT PANEL (Light Mode) */}
             {screen === 'report' && report && (
-              <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-12 flex flex-col justify-center">
-                <div className="glass-card bg-glass border border-glassBorder rounded-[28px] p-8 md:p-10 shadow-shadow">
-                  {/* Report Header */}
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-glassBorder pb-8 mb-8">
+              <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12 flex flex-col justify-center">
+                <div className="bg-bgSurface border border-borderLight rounded-[24px] p-8 md:p-12 shadow-premium">
+                  
+                  {/* Header Dashboard Grid */}
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-borderLight pb-8 mb-8">
                     <div>
-                      <h2 className="font-outfit text-3xl font-bold tracking-tight text-slate-100 mb-2">{report.candidate_name}</h2>
-                      <p className="text-sm font-semibold text-slate-400 tracking-wide uppercase">{report.role_title || 'Backend AI Engineer'}</p>
+                      <h2 className="font-outfit text-2xl md:text-3xl font-extrabold tracking-tight text-textPrimary mb-2">{report.candidate_name}</h2>
+                      <p className="text-xs font-bold text-textSecondary tracking-widest uppercase">{interviewType} Interview</p>
                     </div>
 
-                    <div className="flex items-center gap-5">
-                      <div className="flex flex-col items-center justify-center bg-purple-500/5 border border-purple-500/20 rounded-full w-24 h-24 text-center">
-                        <strong className="font-outfit text-2xl font-black bg-gradient-to-r from-accentCyan to-accentPurple bg-clip-text text-fill-color-transparent text-transparent">
+                    <div className="flex items-center gap-6">
+                      <div className="bg-bgLight border border-borderLight rounded-full w-24 h-24 flex flex-col items-center justify-center text-center shadow-sm">
+                        <strong className="font-outfit text-2xl font-black text-accentBlue">
                           {(report.overall_score || 0.0).toFixed(1)}
                         </strong>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Overall</span>
+                        <span className="text-[8px] font-bold text-textMuted uppercase tracking-widest mt-0.5">Overall</span>
                       </div>
                       
-                      <div className={`px-4 py-2 rounded-xl text-sm font-bold uppercase tracking-wider border ${
+                      <div className={`px-4.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${
                         report.hiring_recommendation === 'Strong Hire' 
-                          ? 'bg-emerald-500/10 border-emerald-500/30 text-accentEmerald' 
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-accentEmerald' 
                           : report.hiring_recommendation === 'Hire' 
-                            ? 'bg-cyan-500/10 border-cyan-500/30 text-accentCyan' 
+                            ? 'bg-blue-500/10 border-blue-500/20 text-accentBlue' 
                             : report.hiring_recommendation === 'Hold' 
-                              ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' 
-                              : 'bg-rose-500/10 border-rose-500/30 text-accentRose'
+                              ? 'bg-amber-500/10 border-amber-500/20 text-accentAmber' 
+                              : 'bg-rose-500/10 border-rose-500/20 text-accentRose'
                       }`}>
                         {report.hiring_recommendation}
                       </div>
@@ -508,60 +771,76 @@
 
                   {/* Executive Summary */}
                   <div className="mb-8">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 pb-2 border-b border-white/5">Executive Summary</h3>
-                    <p className="text-slate-300 leading-relaxed text-[0.98rem]">{report.executive_summary}</p>
+                    <h3 className="text-[10px] font-bold text-textMuted uppercase tracking-widest mb-3 pb-2 border-b border-borderLight">Executive Summary</h3>
+                    <p className="text-textSecondary leading-relaxed text-sm md:text-base">{report.executive_summary}</p>
                   </div>
 
-                  {/* Strengths & Weaknesses Grid */}
+                  {/* Strengths & Weaknesses comparative Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6">
-                      <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Strong Signals</h4>
+                    <div className="bg-bgLight border border-borderLight rounded-2xl p-6">
+                      <h4 className="text-[10px] font-bold text-textSecondary uppercase tracking-widest mb-4 border-b border-borderLight pb-2">Strong Signals</h4>
                       <div className="flex flex-wrap gap-2">
-                        {report.strong_areas.map((s, idx) => (
-                          <span key={idx} className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg px-3 py-1.5 text-xs text-emerald-300 font-medium">
-                            {s}
-                          </span>
-                        ))}
+                        {report.strong_areas && report.strong_areas.length > 0 ? (
+                          report.strong_areas.map((s, idx) => (
+                            <span key={idx} className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg px-3 py-1.5 text-xs text-accentEmerald font-semibold">
+                              {s}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-textMuted">No strong signals evaluated.</span>
+                        )}
                       </div>
                     </div>
 
-                    <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6">
-                      <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Growth & Focus Areas</h4>
+                    <div className="bg-bgLight border border-borderLight rounded-2xl p-6">
+                      <h4 className="text-[10px] font-bold text-textSecondary uppercase tracking-widest mb-4 border-b border-borderLight pb-2">Areas of Focus</h4>
                       <div className="flex flex-wrap gap-2">
-                        {report.improvement_areas.map((w, idx) => (
-                          <span key={idx} className="bg-rose-500/5 border border-rose-500/15 rounded-lg px-3 py-1.5 text-xs text-rose-300 font-medium">
-                            {w}
-                          </span>
-                        ))}
+                        {report.improvement_areas && report.improvement_areas.length > 0 ? (
+                          report.improvement_areas.map((w, idx) => (
+                            <span key={idx} className="bg-rose-500/5 border border-rose-500/10 rounded-lg px-3 py-1.5 text-xs text-accentRose font-semibold">
+                              {w}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-textMuted">No growth areas evaluated.</span>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Evaluation Dimensions */}
+                  {/* Rubric Dimension Summaries */}
                   <div className="mb-8">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 pb-2 border-b border-white/5">Dimension Evaluations</h3>
+                    <h3 className="text-[10px] font-bold text-textMuted uppercase tracking-widest mb-4 pb-2 border-b border-borderLight">Rubric Dimension Breakdown</h3>
                     <div className="flex flex-col gap-3">
-                      {report.dimension_summaries.map((d, idx) => (
-                        <div key={idx} className="bg-white/[0.01] border border-white/[0.03] rounded-xl p-4">
-                          <div className="flex justify-between items-center mb-1">
-                            <strong className="text-sm font-semibold capitalize text-slate-200">{d.dimension.replace(/_/g, ' ')}</strong>
-                            <span className="text-xs font-bold text-accentCyan">{(d.average_score || 0.0).toFixed(1)} / 5.0</span>
+                      {report.dimension_summaries && report.dimension_summaries.length > 0 ? (
+                        report.dimension_summaries.map((d, idx) => (
+                          <div key={idx} className="bg-bgLight border border-borderLight rounded-xl p-4">
+                            <div className="flex justify-between items-center mb-1">
+                              <strong className="text-sm font-semibold capitalize text-textPrimary">{d.dimension.replace(/_/g, ' ')}</strong>
+                              <span className="text-xs font-bold text-accentBlue">{(d.average_score || 0.0).toFixed(1)} / 5.0</span>
+                            </div>
+                            <p className="text-xs text-textSecondary leading-relaxed">{d.comment}</p>
                           </div>
-                          <p className="text-xs text-slate-400 leading-relaxed">{d.comment}</p>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <div className="text-xs text-textMuted text-center py-4">No dimension evaluations compiled.</div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Action buttons */}
+                  {/* Reset action button */}
                   <div className="flex gap-4">
-                    <button className="btn-primary" onClick={resetAll}>
+                    <button 
+                      onClick={resetAll} 
+                      className="bg-accentBlue hover:bg-accentBlueHover text-white font-outfit font-bold rounded-xl px-6 py-3 hover:translate-y-[-1px] transition shadow-md text-xs font-semibold"
+                    >
                       Reset Platform
                     </button>
                   </div>
                 </div>
               </main>
             )}
+
           </div>
         );
       }
